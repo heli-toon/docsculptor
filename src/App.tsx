@@ -77,11 +77,6 @@ function App() {
 
   return (
     <div className="h-screen bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-gray-100 transition-colors duration-300">
-      {/* Settings Overlay */}
-      {settingsOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-25 z-30 transition-opacity duration-300" />
-      )}
-      
       <Toolbar
         currentFile={currentFile}
         onExport={handleExport}
@@ -90,6 +85,11 @@ function App() {
         exportProgress={exportProgress}
         settingsOpen={settingsOpen}
       />
+
+      {/* Settings Overlay */}
+      {settingsOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-25 z-30 transition-opacity duration-300 pointer-events-none" />
+      )}
 
       <div className="flex h-[calc(100vh-73px)]">
         {/* Main Content */}

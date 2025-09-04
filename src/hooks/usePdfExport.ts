@@ -35,11 +35,38 @@ export const usePdfExport = () => {
       });
 
       // Apply code styles
-      const codeElements = element.querySelectorAll('code, pre');
-      codeElements.forEach((code) => {
+      const preElements = element.querySelectorAll('pre');
+      preElements.forEach((pre) => {
+        (pre as HTMLElement).style.fontFamily = settings.fonts.code;
+        (pre as HTMLElement).style.fontSize = `${settings.fontSize.code}px`;
+        (pre as HTMLElement).style.marginTop = '1.5em';
+        (pre as HTMLElement).style.marginBottom = '1.5em';
+        (pre as HTMLElement).style.display = 'block';
+        (pre as HTMLElement).style.pageBreakInside = 'avoid';
+      });
+
+      // Apply inline code styles (no extra margin)
+      const inlineCodeElements = element.querySelectorAll('code:not(pre code)');
+      inlineCodeElements.forEach((code) => {
         (code as HTMLElement).style.fontFamily = settings.fonts.code;
         (code as HTMLElement).style.fontSize = `${settings.fontSize.code}px`;
+        (code as HTMLElement).style.marginTop = '0';
+        (code as HTMLElement).style.marginBottom = '0';
+        (code as HTMLElement).style.display = 'inline';
       });
+
+      // Add extra margin for horizontal rules
+      const hrElements = element.querySelectorAll('hr');
+      hrElements.forEach((hr) => {
+        (hr as HTMLElement).style.marginTop = '2em';
+        (hr as HTMLElement).style.marginBottom = '2em';
+        (hr as HTMLElement).style.borderTop = '2px solid #d1d5db';
+        (hr as HTMLElement).style.pageBreakInside = 'avoid';
+      });
+
+      // Add padding to prevent cutoff
+      element.style.padding = '20px';
+      element.style.pageBreakInside = 'auto';
 
       setExportProgress(30);
 
@@ -52,13 +79,15 @@ export const usePdfExport = () => {
           useCORS: true,
           allowTaint: true,
           scrollX: 0,
-          scrollY: 0
+          scrollY: 0,
+          letterRendering: true
         },
         jsPDF: { 
           unit: 'mm', 
           format: settings.pageFormat.toLowerCase(),
           orientation: settings.orientation
-        }
+        },
+        pagebreak: { mode: ['avoid-all'] }
       };
 
       setExportProgress(60);

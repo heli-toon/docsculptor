@@ -18,18 +18,23 @@ export const Settings: React.FC<SettingsProps> = ({
     onSettingsChange({ ...settings, ...updates });
   };
 
-  const updateNestedSettings = (
-    section: keyof PdfSettings,
-    updates: Partial<PdfSettings[typeof section]>
+  const updateNestedSettings = <K extends keyof PdfSettings>(
+    section: K,
+    updates: Partial<PdfSettings[K]>
   ) => {
     onSettingsChange({
       ...settings,
-      [section]: { ...(settings[section] && typeof settings[section] === 'object' ? settings[section] as Record<string, unknown> : {}), ...updates }
+      [section]: {
+        ...(settings[section] as object),
+        ...updates
+      }
     });
   };
 
   return (
-    <div className={`
+    <div
+      data-settings-panel
+      className={`
       fixed right-0 top-0 h-full w-80 bg-white dark:bg-gray-900 border-l border-gray-200 dark:border-gray-700 
       transform transition-transform duration-300 ease-in-out z-40
       ${isOpen ? 'translate-x-0' : 'translate-x-full'}
@@ -42,7 +47,7 @@ export const Settings: React.FC<SettingsProps> = ({
           <button title='Close Settings'
             type='button'
             onClick={onToggle}
-            className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+            className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors cursor-pointer"
           >
             <i className="bi bi-x-lg text-gray-500" />
           </button>
@@ -236,42 +241,6 @@ export const Settings: React.FC<SettingsProps> = ({
                   <option value="'Courier New', monospace">Courier New</option>
                 </select>
               </div>
-            </div>
-          </div>
-
-          {/* Additional Options */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
-              Additional Options
-            </label>
-            <div className="space-y-3">
-              <label className="flex items-center">
-                <input
-                  type="checkbox"
-                  checked={settings.includeTableOfContents}
-                  onChange={(e) => updateSettings({ includeTableOfContents: e.target.checked })}
-                  className="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200"
-                />
-                <span className="ml-2 text-sm text-gray-700 dark:text-gray-300">Table of Contents</span>
-              </label>
-              <label className="flex items-center">
-                <input
-                  type="checkbox"
-                  checked={settings.includeCoverPage}
-                  onChange={(e) => updateSettings({ includeCoverPage: e.target.checked })}
-                  className="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200"
-                />
-                <span className="ml-2 text-sm text-gray-700 dark:text-gray-300">Cover Page</span>
-              </label>
-              <label className="flex items-center">
-                <input
-                  type="checkbox"
-                  checked={settings.includePageNumbers}
-                  onChange={(e) => updateSettings({ includePageNumbers: e.target.checked })}
-                  className="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200"
-                />
-                <span className="ml-2 text-sm text-gray-700 dark:text-gray-300">Page Numbers</span>
-              </label>
             </div>
           </div>
         </div>

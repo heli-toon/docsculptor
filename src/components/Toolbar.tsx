@@ -41,6 +41,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
       <div className="flex items-center space-x-3">
         <button
           onClick={onSettingsToggle}
+          data-settings-trigger
           className={`p-2 rounded-lg border transition-all duration-200 cursor-pointer ${
             settingsOpen
               ? 'bg-blue-500 text-white border-blue-500'
