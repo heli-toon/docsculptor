@@ -3,9 +3,10 @@ import React, { useEffect } from 'react';
 interface PreviewProps {
   content: string;
   isProcessing: boolean;
+  onClear?: () => void;
 }
 
-export const Preview: React.FC<PreviewProps> = ({ content, isProcessing }) => {
+export const Preview: React.FC<PreviewProps> = ({ content, isProcessing, onClear }) => {
   useEffect(() => {
     // Add syntax highlighting styles
     const link = document.createElement('link');
@@ -49,7 +50,18 @@ export const Preview: React.FC<PreviewProps> = ({ content, isProcessing }) => {
   }
 
   return (
-    <div className="h-full overflow-auto">
+    <div className="h-full overflow-auto relative">
+      {/* Clear Preview button */}
+      {onClear && (
+        <button
+          onClick={onClear}
+          className="absolute top-4 right-4 z-10 p-2 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-colors cursor-pointer"
+          title="Clear Preview"
+        >
+          <i className="bi bi-x-lg text-gray-500 dark:text-gray-400" />
+        </button>
+      )}
+      
       <div 
         className="prose prose-lg dark:prose-invert max-w-none p-6
                    prose-headings:font-semibold prose-headings:text-gray-900 dark:prose-headings:text-gray-100

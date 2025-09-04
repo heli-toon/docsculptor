@@ -10,7 +10,7 @@ import type { MarkdownFile, PdfSettings } from './types';
 
 function App() {
   useTheme();
-  const { processedHtml, isProcessing, processMarkdown } = useMarkdown();
+  const { processedHtml, isProcessing, processMarkdown, clearProcessedHtml } = useMarkdown();
   const { exportToPdf, isExporting, exportProgress } = usePdfExport();
   
   const [currentFile, setCurrentFile] = useState<MarkdownFile | null>(null);
@@ -18,6 +18,7 @@ function App() {
   const [settings, setSettings] = useState<PdfSettings>({
     pageFormat: 'A4',
     orientation: 'portrait',
+    exportMode: 'image',
     margins: { top: 20, right: 20, bottom: 20, left: 20 },
     fontSize: { body: 14, headings: 24, code: 12 },
     fonts: {
@@ -41,6 +42,7 @@ function App() {
   const handleFileSelect = (file: MarkdownFile) => {
     if (!file.name) {
       setCurrentFile(null);
+      clearProcessedHtml();
       return;
     }
     setCurrentFile(file);
@@ -60,6 +62,11 @@ function App() {
 
   const handleSettingsToggle = () => {
     setSettingsOpen(!settingsOpen);
+  };
+
+  const handleClearPreview = () => {
+    setCurrentFile(null);
+    clearProcessedHtml();
   };
 
   // Close settings panel when clicking outside
@@ -127,7 +134,11 @@ function App() {
                   </p>
                 </div>
                 <div className="flex-1 border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden bg-white dark:bg-gray-800">
-                  <Preview content={processedHtml} isProcessing={isProcessing} />
+                  <Preview 
+                    content={processedHtml} 
+                    isProcessing={isProcessing} 
+                    onClear={processedHtml ? handleClearPreview : undefined}
+                  />
                 </div>
               </div>
             </div>

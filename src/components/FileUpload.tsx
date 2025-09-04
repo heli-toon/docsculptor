@@ -87,6 +87,8 @@ export const FileUpload: React.FC<FileUploadProps> = ({ onFileSelect, currentFil
     const files = e.target.files;
     if (files && files.length > 0) {
       processFile(files[0]);
+      // Clear the input value to allow re-uploading the same file
+      e.target.value = '';
     }
   }, [processFile]);
 
@@ -115,6 +117,7 @@ export const FileUpload: React.FC<FileUploadProps> = ({ onFileSelect, currentFil
           className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
           accept=".md,.markdown,.html,.htm"
           onChange={handleFileSelect}
+          key={currentFile ? currentFile.name + currentFile.lastModified : 'empty'}
         />
         
         <div className="space-y-4">

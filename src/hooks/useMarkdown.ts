@@ -38,9 +38,14 @@ export const useMarkdown = () => {
     }
   }, []);
 
+  const clearProcessedHtml = useCallback(() => {
+    setProcessedHtml('');
+  }, []);
+
   return {
     processedHtml,
     isProcessing,
-    processMarkdown
+    processMarkdown,
+    clearProcessedHtml
   };
 };

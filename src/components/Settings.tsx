@@ -54,6 +54,43 @@ export const Settings: React.FC<SettingsProps> = ({
         </div>
 
         <div className="space-y-6">
+          {/* Export Mode */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Export Mode
+            </label>
+            <div className="space-y-2">
+              <label className="flex items-center p-3 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer">
+                <input
+                  type="radio"
+                  name="exportMode"
+                  value="text"
+                  checked={settings.exportMode === 'text'}
+                  onChange={(e) => updateSettings({ exportMode: e.target.value as 'text' | 'image' })}
+                  className="mr-3"
+                />
+                <div>
+                  <span className="font-medium text-gray-900 dark:text-gray-100">Text PDF</span>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">Selectable text, smaller file size, faster export, emojis removed</p>
+                </div>
+              </label>
+              <label className="flex items-center p-3 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer">
+                <input
+                  type="radio"
+                  name="exportMode"
+                  value="image"
+                  checked={settings.exportMode === 'image'}
+                  onChange={(e) => updateSettings({ exportMode: e.target.value as 'text' | 'image' })}
+                  className="mr-3"
+                />
+                <div>
+                  <span className="font-medium text-gray-900 dark:text-gray-100">Image PDF</span>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">Exact visual match to preview, larger file size</p>
+                </div>
+              </label>
+            </div>
+          </div>
+
           {/* Page Format */}
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -78,7 +115,7 @@ export const Settings: React.FC<SettingsProps> = ({
             <div className="flex space-x-2">
               <button
                 onClick={() => updateSettings({ orientation: 'portrait' })}
-                className={`flex-1 p-2 border rounded-lg transition-colors ${
+                className={`flex-1 p-2 border rounded-lg transition-colors cursor-pointer ${
                   settings.orientation === 'portrait'
                     ? 'bg-blue-500 text-white border-blue-500'
                     : 'border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800'
@@ -88,7 +125,7 @@ export const Settings: React.FC<SettingsProps> = ({
               </button>
               <button
                 onClick={() => updateSettings({ orientation: 'landscape' })}
-                className={`flex-1 p-2 border rounded-lg transition-colors ${
+                className={`flex-1 p-2 border rounded-lg transition-colors cursor-pointer ${
                   settings.orientation === 'landscape'
                     ? 'bg-blue-500 text-white border-blue-500'
                     : 'border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800'

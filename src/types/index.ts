@@ -9,6 +9,7 @@ export interface MarkdownFile {
 export interface PdfSettings {
     pageFormat: 'A4' | 'Letter' | 'Legal';
     orientation: 'portrait' | 'landscape';
+    exportMode: 'image' | 'text';
     margins: {
       top: number;
       right: number;
