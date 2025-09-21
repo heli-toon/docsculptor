@@ -9,6 +9,7 @@ interface ToolbarProps {
   isExporting: boolean;
   exportProgress: number;
   settingsOpen: boolean;
+  canExport: boolean; // NEW: allow export when preview exists
 }
 
 export const Toolbar: React.FC<ToolbarProps> = ({
@@ -17,7 +18,8 @@ export const Toolbar: React.FC<ToolbarProps> = ({
   onSettingsToggle,
   isExporting,
   exportProgress,
-  settingsOpen
+  settingsOpen,
+  canExport
 }) => {
   return (
     <div className="flex items-center justify-between p-4 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">
@@ -54,15 +56,15 @@ export const Toolbar: React.FC<ToolbarProps> = ({
 
         <button
           onClick={onExport}
-          disabled={!currentFile || isExporting}
+          disabled={!canExport || isExporting}
           className={`
             px-4 py-2 rounded-lg font-medium transition-all duration-200 flex items-center space-x-2 cursor-pointer
-            ${currentFile && !isExporting
+            ${canExport && !isExporting
               ? 'bg-blue-600 hover:bg-blue-700 text-white shadow-md hover:shadow-lg transform hover:scale-105'
               : 'bg-gray-300 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed'
             }
           `}
-          title={currentFile ? 'Export to PDF' : 'Upload a file first'}
+          title={canExport ? 'Export to PDF' : 'Paste or upload content first'}
         >
           {isExporting ? (
             <>

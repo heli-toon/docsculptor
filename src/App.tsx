@@ -3,6 +3,7 @@ import { FileUpload } from './components/FileUpload';
 import { Preview } from './components/Preview';
 import { Settings } from './components/Settings';
 import { Toolbar } from './components/Toolbar';
+import { PasteInput } from './components/PasteInput';
 import { useTheme } from './hooks/useTheme';
 import { useMarkdown } from './hooks/useMarkdown';
 import { usePdfExport } from './hooks/usePdfExport';
@@ -48,11 +49,18 @@ function App() {
     setCurrentFile(file);
   };
 
+  const handlePastePreview = (content: string, type: 'markdown' | 'html') => {
+    setCurrentFile(null);
+    processMarkdown(content, type);
+  };
+
   const handleExport = async () => {
-    if (!currentFile || !processedHtml) return;
+    if (!processedHtml) return;
 
     try {
-      const fileName = currentFile.name.replace(/\.[^/.]+$/, '');
+      const fileName = currentFile
+        ? currentFile.name.replace(/\.[^/.]+$/, '')
+        : 'document';
       await exportToPdf(processedHtml, fileName, settings);
     } catch (error) {
       console.error('Export failed:', error);
@@ -69,7 +77,6 @@ function App() {
     clearProcessedHtml();
   };
 
-  // Close settings panel when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as HTMLElement;
@@ -91,18 +98,16 @@ function App() {
         isExporting={isExporting}
         exportProgress={exportProgress}
         settingsOpen={settingsOpen}
+        canExport={!!processedHtml}
       />
 
-      {/* Settings Overlay */}
       {settingsOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-25 z-30 transition-opacity duration-300 pointer-events-none" />
       )}
 
       <div className="flex h-[calc(100vh-73px)]">
-        {/* Main Content */}
         <div className={`flex-1 transition-all duration-300 ${settingsOpen ? 'mr-80' : ''}`}>
           <div className="grid lg:grid-cols-2 h-full">
-            {/* Upload Section */}
             <div className="p-6 border-r border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900">
               <div className="h-full flex flex-col">
                 <div className="mb-6">
@@ -118,11 +123,17 @@ function App() {
                     onFileSelect={handleFileSelect}
                     currentFile={currentFile}
                   />
+                  <div className="mt-6">
+                    <PasteInput
+                      onPreview={handlePastePreview}
+                      onClear={() => { setCurrentFile(null); clearProcessedHtml(); }}
+                      isProcessing={isProcessing}
+                    />
+                  </div>
                 </div>
               </div>
             </div>
 
-            {/* Preview Section */}
             <div className="bg-white dark:bg-gray-900">
               <div className="p-6 h-full flex flex-col">
                 <div className="mb-4">
@@ -145,7 +156,6 @@ function App() {
           </div>
         </div>
 
-        {/* Settings Panel */}
         <Settings
           settings={settings}
           onSettingsChange={setSettings}
