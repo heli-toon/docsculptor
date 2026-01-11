@@ -70,9 +70,11 @@ export const Preview: React.FC<PreviewProps> = ({ content, isProcessing, onClear
                    prose-code:text-sm prose-code:bg-gray-100 dark:prose-code:bg-gray-800 prose-code:px-1 prose-code:py-0.5 prose-code:rounded
                    prose-pre:bg-gray-50 dark:prose-pre:bg-gray-900 prose-pre:border prose-pre:border-gray-200 dark:prose-pre:border-gray-700
                    prose-blockquote:border-l-blue-500 prose-blockquote:bg-blue-50 dark:prose-blockquote:bg-blue-900/20
-                   prose-table:border-collapse prose-table:border prose-table:border-gray-200 dark:prose-table:border-gray-700
-                   prose-th:border prose-th:border-gray-200 dark:prose-th:border-gray-700 prose-th:bg-gray-50 dark:prose-th:bg-gray-800
-                   prose-td:border prose-td:border-gray-200 dark:prose-td:border-gray-700
+                   prose-table:w-full prose-table:border-collapse prose-table:my-6
+                   prose-th:border-2 prose-th:border-gray-300 dark:prose-th:border-gray-600 prose-th:bg-gray-100 dark:prose-th:bg-gray-800 prose-th:p-3 prose-th:text-left prose-th:font-semibold
+                   prose-td:border prose-td:border-gray-300 dark:prose-td:border-gray-600 prose-td:p-3
+                   prose-thead:border-b-2 prose-thead:border-gray-300 dark:prose-thead:border-gray-600
+                   prose-tbody:divide-y prose-tbody:divide-gray-200 dark:prose-tbody:divide-gray-700
                    [&&_hr]:mt-8 [&&_hr]:mb-8 [&&_hr]:border-t-2 [&&_hr]:border-gray-300 dark:[&&_hr]:border-gray-700
                    [&&_pre]:mt-8 [&&_pre]:mb-8"
         dangerouslySetInnerHTML={{ __html: content }}

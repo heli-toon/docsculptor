@@ -221,6 +221,83 @@ export const useTextPdfExport = () => {
             break;
           }
 
+          case 'table': {
+            yPosition += 5;
+            
+            // Get table data
+            const rows: string[][] = [];
+            const headerRows = element.querySelectorAll('thead tr');
+            const bodyRows = element.querySelectorAll('tbody tr');
+            
+            // Process header rows
+            headerRows.forEach(row => {
+              const cells: string[] = [];
+              row.querySelectorAll('th, td').forEach(cell => {
+                cells.push(getCleanTextContent(cell, false));
+              });
+              if (cells.some(c => c.trim())) rows.push(cells);
+            });
+            
+            // Process body rows
+            bodyRows.forEach(row => {
+              const cells: string[] = [];
+              row.querySelectorAll('td').forEach(cell => {
+                cells.push(getCleanTextContent(cell, false));
+              });
+              if (cells.some(c => c.trim())) rows.push(cells);
+            });
+            
+            if (rows.length > 0) {
+              const numCols = Math.max(...rows.map(r => r.length));
+              const colWidth = (maxWidth - 10) / numCols;
+              const rowHeight = lineHeight * 2.5;
+              
+              checkPageBreak(rowHeight * (rows.length + 1));
+              
+              pdf.setFont('helvetica', 'normal');
+              pdf.setFontSize(settings.fontSize.body - 1);
+              pdf.setLineWidth(0.2);
+              
+              rows.forEach((row, rowIndex) => {
+                const isHeader = rowIndex === 0 && headerRows.length > 0;
+                const startX = margin + 5;
+                const startY = yPosition;
+                
+                // Draw cell backgrounds for header
+                if (isHeader) {
+                  pdf.setFillColor(245, 245, 245); // Light gray for header
+                  pdf.rect(startX, startY - rowHeight + 2, maxWidth - 10, rowHeight, 'F');
+                }
+                
+                // Draw cell borders and text
+                row.forEach((cell, colIndex) => {
+                  const x = startX + (colIndex * colWidth);
+                  const y = startY;
+                  
+                  // Draw cell border
+                  pdf.setDrawColor(200, 200, 200);
+                  pdf.rect(x, y - rowHeight + 2, colWidth, rowHeight);
+                  
+                  // Draw text
+                  if (isHeader) {
+                    pdf.setFont('helvetica', 'bold');
+                  } else {
+                    pdf.setFont('helvetica', 'normal');
+                  }
+                  
+                  const lines = pdf.splitTextToSize(cell, colWidth - 4);
+                  const textY = y - rowHeight + 2 + (rowHeight / 2) - ((lines.length * lineHeight * 1.1) / 2) + lineHeight;
+                  pdf.text(lines, x + 2, textY);
+                });
+                
+                yPosition += rowHeight;
+              });
+              
+              yPosition += 5;
+            }
+            break;
+          }
+
           default: {
             for (const child of Array.from(element.childNodes)) {
               processNode(child);
