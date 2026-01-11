@@ -125,6 +125,14 @@ export const useTextPdfExport = () => {
 
         // Skip if this element was already processed as part of a parent
         if (element.closest('pre') && tagName !== 'pre') return;
+        
+        // Skip KaTeX elements entirely - don't try to extract text from them
+        if (element.classList.contains('katex') || 
+            element.classList.contains('katex-display') ||
+            element.classList.contains('katex-html') ||
+            element.closest('.katex')) {
+          return;
+        }
 
         switch (tagName) {
           case 'h1':
@@ -294,6 +302,51 @@ export const useTextPdfExport = () => {
               });
               
               yPosition += 5;
+            }
+            break;
+          }
+
+          case 'div': {
+            // Handle KaTeX display math (block equations)
+            if (element.classList.contains('math-display') || 
+                element.querySelector('.katex-display')) {
+              checkPageBreak(lineHeight * 3);
+              yPosition += 3;
+              
+              pdf.setFont('helvetica', 'italic');
+              pdf.setFontSize(settings.fontSize.body - 1);
+              pdf.setTextColor(80, 80, 80);
+              
+              // Center the placeholder
+              const placeholderText = '[Mathematical Equation - View in Image PDF mode]';
+              const textWidth = pdf.getTextWidth(placeholderText);
+              const centerX = (pageWidth - textWidth) / 2;
+              
+              pdf.text(placeholderText, centerX, yPosition);
+              pdf.setTextColor(0, 0, 0);
+              
+              yPosition += lineHeight * 2;
+              break;
+            }
+            
+            // For other divs, process children
+            for (const child of Array.from(element.childNodes)) {
+              processNode(child);
+            }
+            break;
+          }
+
+          case 'span': {
+            // Handle KaTeX inline math - skip it
+            if (element.classList.contains('math') ||
+                element.querySelector('.katex')) {
+              // Don't render anything for inline math
+              break;
+            }
+            
+            // For other spans, process children
+            for (const child of Array.from(element.childNodes)) {
+              processNode(child);
             }
             break;
           }

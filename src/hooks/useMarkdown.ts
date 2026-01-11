@@ -3,7 +3,9 @@ import { unified } from 'unified';
 import remarkParse from 'remark-parse';
 import remarkGfm from 'remark-gfm';
 import remarkEmoji from 'remark-emoji';
+import remarkMath from 'remark-math';
 import remarkRehype from 'remark-rehype';
+import rehypeKatex from 'rehype-katex';
 import rehypeStringify from 'rehype-stringify';
 import rehypeHighlight from 'rehype-highlight';
 
@@ -24,7 +26,9 @@ export const useMarkdown = () => {
         .use(remarkParse)
         .use(remarkGfm)
         .use(remarkEmoji)
+        .use(remarkMath)
         .use(remarkRehype, { allowDangerousHtml: true })
+        .use(rehypeKatex)
         .use(rehypeHighlight)
         .use(rehypeStringify, { allowDangerousHtml: true });
 

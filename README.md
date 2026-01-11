@@ -133,6 +133,32 @@ DocSculptor supports GitHub Flavored Markdown including:
 - **Emojis** 😊 (in Image PDF mode)
 - **Strikethrough**
 - **Task lists**
+- **Math equations** (LaTeX/KaTeX syntax)
+  - Inline math: `$E = mc^2$`
+  - Block math: `$$\int_{-\infty}^{\infty} e^{-x^2} dx = \sqrt{\pi}$$`
+
+#### Math Equation Examples
+
+**Inline equations**: Use single dollar signs for inline math: `$x^2 + y^2 = z^2$`
+
+**Display equations**: Use double dollar signs for block equations:
+```markdown
+$$
+\frac{-b \pm \sqrt{b^2 - 4ac}}{2a}
+$$
+```
+
+**Complex expressions**:
+```markdown
+$$
+\begin{aligned}
+\nabla \times \vec{\mathbf{B}} -\, \frac1c\, \frac{\partial\vec{\mathbf{E}}}{\partial t} &= \frac{4\pi}{c}\vec{\mathbf{j}} \\
+\nabla \cdot \vec{\mathbf{E}} &= 4 \pi \rho \\
+\nabla \times \vec{\mathbf{E}}\, +\, \frac1c\, \frac{\partial\vec{\mathbf{B}}}{\partial t} &= \vec{\mathbf{0}} \\
+\nabla \cdot \vec{\mathbf{B}} &= 0
+\end{aligned}
+$$
+```
 
 ## 🏗️ Architecture
 
@@ -242,3 +268,4 @@ If you find DocSculptor useful, please:
 **Made with ❤️ by the Salay Abdul Muhaimin Kanton**
 
 *Transform your documents, sculpt your PDFs.*
+````

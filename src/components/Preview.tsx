@@ -22,9 +22,36 @@ export const Preview: React.FC<PreviewProps> = ({ content, isProcessing, onClear
     darkLink.media = '(prefers-color-scheme: dark)';
     document.head.appendChild(darkLink);
 
+    // Add KaTeX styles for math rendering
+    const katexLink = document.createElement('link');
+    katexLink.rel = 'stylesheet';
+    katexLink.href = 'https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css';
+    katexLink.id = 'katex-styles';
+    katexLink.crossOrigin = 'anonymous';
+    document.head.appendChild(katexLink);
+
+    // Add custom KaTeX fraction fix styles
+    const katexFixStyle = document.createElement('style');
+    katexFixStyle.id = 'katex-fraction-fix';
+    katexFixStyle.textContent = `
+      .katex .frac-line {
+        border-bottom-width: 0.04em !important;
+        margin: 0.1em 0 !important;
+      }
+      .katex .mfrac {
+        vertical-align: middle !important;
+      }
+      .katex .mfrac > span {
+        text-align: center !important;
+      }
+    `;
+    document.head.appendChild(katexFixStyle);
+
     return () => {
       document.getElementById('highlight-theme-light')?.remove();
       document.getElementById('highlight-theme-dark')?.remove();
+      document.getElementById('katex-styles')?.remove();
+      document.getElementById('katex-fraction-fix')?.remove();
     };
   }, []);
 
@@ -76,7 +103,10 @@ export const Preview: React.FC<PreviewProps> = ({ content, isProcessing, onClear
                    prose-thead:border-b-2 prose-thead:border-gray-300 dark:prose-thead:border-gray-600
                    prose-tbody:divide-y prose-tbody:divide-gray-200 dark:prose-tbody:divide-gray-700
                    [&&_hr]:mt-8 [&&_hr]:mb-8 [&&_hr]:border-t-2 [&&_hr]:border-gray-300 dark:[&&_hr]:border-gray-700
-                   [&&_pre]:mt-8 [&&_pre]:mb-8"
+                   [&&_pre]:mt-8 [&&_pre]:mb-8
+                   [&&_.katex-display]:my-6 [&&_.katex-display]:overflow-visible [&&_.katex-display]:block [&&_.katex-display]:w-full
+                   [&&_.katex]:text-inherit [&&_.katex]:whitespace-normal
+                   [&&_.katex-html]:overflow-visible"
         dangerouslySetInnerHTML={{ __html: content }}
       />
     </div>

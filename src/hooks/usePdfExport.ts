@@ -92,6 +92,49 @@ export const usePdfExport = () => {
       (thead as HTMLElement).style.borderBottom = '2px solid #d1d5db';
     });
 
+    // Style KaTeX math elements
+    const katexDisplayElements = element.querySelectorAll('.katex-display');
+    katexDisplayElements.forEach((math) => {
+      (math as HTMLElement).style.margin = '1.5em 0';
+      (math as HTMLElement).style.overflow = 'visible';
+      (math as HTMLElement).style.textAlign = 'center';
+      (math as HTMLElement).style.display = 'block';
+      (math as HTMLElement).style.width = '100%';
+    });
+
+    const katexElements = element.querySelectorAll('.katex');
+    katexElements.forEach((math) => {
+      (math as HTMLElement).style.fontSize = 'inherit';
+      (math as HTMLElement).style.whiteSpace = 'normal';
+      (math as HTMLElement).style.wordBreak = 'normal';
+    });
+    
+    // Ensure katex-html containers don't have scrollbars
+    const katexHtmlElements = element.querySelectorAll('.katex-html');
+    katexHtmlElements.forEach((katexHtml) => {
+      (katexHtml as HTMLElement).style.overflow = 'visible';
+      (katexHtml as HTMLElement).style.display = 'inline-block';
+    });
+
+    // Fix fraction line positioning
+    const fracLines = element.querySelectorAll('.katex .frac-line');
+    fracLines.forEach((line) => {
+      (line as HTMLElement).style.borderBottomWidth = '0.04em';
+      (line as HTMLElement).style.margin = '0.1em 0';
+    });
+
+    // Fix fraction container alignment
+    const mfracs = element.querySelectorAll('.katex .mfrac');
+    mfracs.forEach((frac) => {
+      (frac as HTMLElement).style.verticalAlign = 'middle';
+    });
+
+    // Center align fraction numerator and denominator
+    const mfracSpans = element.querySelectorAll('.katex .mfrac > span');
+    mfracSpans.forEach((span) => {
+      (span as HTMLElement).style.textAlign = 'center';
+    });
+
     // Add padding to prevent cutoff
     element.style.padding = '20px';
     element.style.pageBreakInside = 'auto';
