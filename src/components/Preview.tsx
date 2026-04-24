@@ -159,7 +159,7 @@ export const Preview: React.FC<PreviewProps> = ({ content, isProcessing, onClear
           className="absolute top-4 right-4 z-10 p-2 bg-gray-100/80 dark:bg-gray-700/80 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-all cursor-pointer backdrop-blur-sm shadow-sm"
           title="Clear Preview"
         >
-          <i className="bi bi-trash3 text-red-500" />
+          <i className="bi bi-x-lg text-red-500" />
         </button>
       )}
 

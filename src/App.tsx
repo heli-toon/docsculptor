@@ -37,13 +37,11 @@ function App() {
     pageNumberPosition: 'bottom-right'
   });
 
-  // Load draft on mount
   useEffect(() => {
     const savedDraft = localStorage.getItem('docsculptor_draft');
     if (savedDraft) {
       try {
-        const draft = JSON.parse(savedDraft);
-        setCurrentFile(draft);
+        setCurrentFile(JSON.parse(savedDraft));
       } catch (e) {
         console.error('Failed to load draft:', e);
       }
@@ -72,7 +70,6 @@ function App() {
 
   const handleExport = useCallback(async () => {
     if (!processedHtml) return;
-
     try {
       const fileName = currentFile
         ? currentFile.name.replace(/\.[^/.]+$/, '')
@@ -107,23 +104,22 @@ function App() {
     document.getElementById('file-upload')?.click();
   }, []);
 
-  // Keyboard Shortcuts
-  useHotkey('Mod+E', (e) => {
+  useHotkey('Mod+E', e => {
     e.preventDefault();
     handleExport();
   });
 
-  useHotkey('Mod+O', (e) => {
+  useHotkey('Mod+O', e => {
     e.preventDefault();
     handleOpenFile();
   });
 
-  useHotkey('Mod+S', (e) => {
+  useHotkey('Mod+S', e => {
     e.preventDefault();
     handleSaveDraft();
   });
 
-  useHotkey('Mod+,', (e) => {
+  useHotkey('Mod+,', e => {
     e.preventDefault();
     handleSettingsToggle();
   });
@@ -131,17 +127,20 @@ function App() {
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as HTMLElement;
-      if (settingsOpen && !target.closest('[data-settings-panel]') && !target.closest('[data-settings-trigger]')) {
+      if (
+        settingsOpen &&
+        !target.closest('[data-settings-panel]') &&
+        !target.closest('[data-settings-trigger]')
+      ) {
         setSettingsOpen(false);
       }
     };
-
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [settingsOpen]);
 
   return (
-    <div className="min-h-screen lg:h-screen lg:overflow-hidden bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-gray-100 transition-colors duration-300 flex flex-col">
+    <div className="min-h-screen lg:h-screen lg:overflow-hidden bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-gray-100 flex flex-col">
       <Toolbar
         currentFile={currentFile}
         onExport={handleExport}
@@ -153,22 +152,22 @@ function App() {
       />
 
       {settingsOpen && (
-        <div className="fixed inset-0 bg-black/25 dark:bg-black/50 z-30 transition-opacity duration-300 pointer-events-none" />
+        <div className="fixed inset-0 bg-black/25 dark:bg-black/50 z-30 pointer-events-none" />
       )}
 
-      <div className="flex-1 lg:overflow-hidden relative">
-        <div className={`flex-1 transition-all duration-300 ${settingsOpen ? 'lg:mr-80' : ''} lg:overflow-hidden`}>
+      <div className="flex-1 relative lg:overflow-hidden">
+        <div className={`flex-1 ${settingsOpen ? 'lg:mr-80' : ''} lg:h-full`}>
           <div className="flex flex-col lg:flex-row lg:h-full">
-            <div className="w-full lg:w-1/2 lg:h-full flex flex-col border-b lg:border-b-0 lg:border-r border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900">
+
+            <div className="w-full lg:w-1/2 lg:h-full flex flex-col min-h-0 border-b lg:border-b-0 lg:border-r border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900">
               <div className="p-6 border-b border-gray-100 dark:border-gray-800">
-                <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">
-                  Upload Document
-                </h2>
+                <h2 className="text-lg font-semibold mb-2">Upload Document</h2>
                 <p className="text-sm text-gray-600 dark:text-gray-400">
                   Upload your Markdown or HTML file to get started
                 </p>
               </div>
-              <div className="flex-1 overflow-y-auto p-6">
+
+              <div className="flex-1 overflow-y-auto p-6 min-h-0">
                 <FileUpload
                   onFileSelect={handleFileSelect}
                   currentFile={currentFile}
@@ -183,17 +182,16 @@ function App() {
               </div>
             </div>
 
-            <div className="w-full lg:w-1/2 lg:h-full flex flex-col bg-white dark:bg-gray-900">
+            <div className="w-full lg:w-1/2 lg:h-full flex flex-col min-h-0 bg-white dark:bg-gray-900">
               <div className="p-6 border-b border-gray-100 dark:border-gray-800">
-                <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">
-                  Preview
-                </h2>
+                <h2 className="text-lg font-semibold mb-2">Preview</h2>
                 <p className="text-sm text-gray-600 dark:text-gray-400">
                   Live preview of your rendered document
                 </p>
               </div>
-              <div className="flex-1 overflow-hidden p-6">
-                <div className="h-full border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden bg-white dark:bg-gray-800">
+
+              <div className="flex-1 overflow-y-auto p-6 min-h-0">
+                <div className="h-full border border-gray-200 dark:border-gray-700 rounded-lg overflow-auto bg-white dark:bg-gray-800">
                   <Preview
                     content={processedHtml}
                     isProcessing={isProcessing}
