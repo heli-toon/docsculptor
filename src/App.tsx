@@ -14,7 +14,7 @@ function App() {
   useTheme();
   const { processedHtml, isProcessing, processMarkdown, clearProcessedHtml } = useMarkdown();
   const { exportToPdf, isExporting, exportProgress } = usePdfExport();
-  
+
   const [currentFile, setCurrentFile] = useState<MarkdownFile | null>(null);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [settings, setSettings] = useState<PdfSettings>({
@@ -141,7 +141,7 @@ function App() {
   }, [settingsOpen]);
 
   return (
-    <div className="h-screen overflow-hidden bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-gray-100 transition-colors duration-300 flex flex-col">
+    <div className="min-h-screen lg:h-screen lg:overflow-hidden bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-gray-100 transition-colors duration-300 flex flex-col">
       <Toolbar
         currentFile={currentFile}
         onExport={handleExport}
@@ -156,49 +156,47 @@ function App() {
         <div className="fixed inset-0 bg-black/25 dark:bg-black/50 z-30 transition-opacity duration-300 pointer-events-none" />
       )}
 
-      <div className="flex flex-1 overflow-hidden relative">
-        <div className={`flex-1 transition-all duration-300 ${settingsOpen ? 'lg:mr-80' : ''} overflow-y-auto lg:overflow-hidden`}>
-          <div className="flex flex-col lg:flex-row h-full">
-            <div className="w-full lg:w-1/2 lg:h-full p-6 border-b lg:border-b-0 lg:border-r border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 overflow-y-auto">
-              <div className="min-h-full flex flex-col">
-                <div className="mb-6">
-                  <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">
-                    Upload Document
-                  </h2>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">
-                    Upload your Markdown or HTML file to get started
-                  </p>
-                </div>
-                <div className="flex-1">
-                  <FileUpload
-                    onFileSelect={handleFileSelect}
-                    currentFile={currentFile}
+      <div className="flex-1 lg:overflow-hidden relative">
+        <div className={`flex-1 transition-all duration-300 ${settingsOpen ? 'lg:mr-80' : ''} lg:overflow-hidden`}>
+          <div className="flex flex-col lg:flex-row lg:h-full">
+            <div className="w-full lg:w-1/2 lg:h-full flex flex-col border-b lg:border-b-0 lg:border-r border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900">
+              <div className="p-6 border-b border-gray-100 dark:border-gray-800">
+                <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">
+                  Upload Document
+                </h2>
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                  Upload your Markdown or HTML file to get started
+                </p>
+              </div>
+              <div className="flex-1 overflow-y-auto p-6">
+                <FileUpload
+                  onFileSelect={handleFileSelect}
+                  currentFile={currentFile}
+                />
+                <div className="mt-6">
+                  <PasteInput
+                    onPreview={handlePastePreview}
+                    onClear={handleClearPreview}
+                    isProcessing={isProcessing}
                   />
-                  <div className="mt-6">
-                    <PasteInput
-                      onPreview={handlePastePreview}
-                      onClear={handleClearPreview}
-                      isProcessing={isProcessing}
-                    />
-                  </div>
                 </div>
               </div>
             </div>
 
-            <div className="w-full lg:w-1/2 lg:h-full bg-white dark:bg-gray-900 overflow-hidden flex flex-col">
-              <div className="p-6 flex-1 flex flex-col overflow-hidden">
-                <div className="mb-4">
-                  <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">
-                    Preview
-                  </h2>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">
-                    Live preview of your rendered document
-                  </p>
-                </div>
-                <div className="flex-1 border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden bg-white dark:bg-gray-800">
-                  <Preview 
-                    content={processedHtml} 
-                    isProcessing={isProcessing} 
+            <div className="w-full lg:w-1/2 lg:h-full flex flex-col bg-white dark:bg-gray-900">
+              <div className="p-6 border-b border-gray-100 dark:border-gray-800">
+                <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">
+                  Preview
+                </h2>
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                  Live preview of your rendered document
+                </p>
+              </div>
+              <div className="flex-1 overflow-hidden p-6">
+                <div className="h-full border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden bg-white dark:bg-gray-800">
+                  <Preview
+                    content={processedHtml}
+                    isProcessing={isProcessing}
                     onClear={processedHtml ? handleClearPreview : undefined}
                     settings={settings}
                   />

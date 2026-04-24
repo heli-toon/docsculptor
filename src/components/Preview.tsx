@@ -27,7 +27,7 @@ export const Preview: React.FC<PreviewProps> = ({ content, isProcessing, onClear
     // Add KaTeX styles for math rendering
     const katexLink = document.createElement('link');
     katexLink.rel = 'stylesheet';
-    katexLink.href = 'https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css';
+    katexLink.href = 'https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.css';
     katexLink.id = 'katex-styles';
     katexLink.crossOrigin = 'anonymous';
     document.head.appendChild(katexLink);
@@ -58,7 +58,11 @@ export const Preview: React.FC<PreviewProps> = ({ content, isProcessing, onClear
         margin-top: 2em;
         margin-bottom: 0.8em;
       }
-      .preview-content h1 { font-size: ${settings.fontSize.headings}px; border-bottom: 2px solid currentColor; padding-bottom: 0.3em; }
+      .preview-content h1 { 
+        font-size: ${settings.fontSize.headings}px; 
+        border-bottom: 1px solid #ccc;
+        padding-bottom: 0.2em;
+      }
       .preview-content h2 { font-size: ${settings.fontSize.headings * 0.85}px; }
       .preview-content h3 { font-size: ${settings.fontSize.headings * 0.75}px; }
       
@@ -67,62 +71,58 @@ export const Preview: React.FC<PreviewProps> = ({ content, isProcessing, onClear
         font-size: ${settings.fontSize.code}px;
       }
 
-      /* Enhanced Table Styling - "Pop Out" effect */
+      /* Clean Table Styling - Matches PDF export better */
       .preview-content table {
         width: 100%;
-        border-collapse: separate;
-        border-spacing: 0;
-        margin: 2em 0;
-        border-radius: 12px;
-        overflow: hidden;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-        border: 1px solid rgba(0, 0, 0, 0.1);
-        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        border-collapse: collapse;
+        margin: 1.5em 0;
+        border: 1px solid #ddd;
       }
       .dark .preview-content table {
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-        border-color: rgba(255, 255, 255, 0.1);
-      }
-      .preview-content table:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
-      }
-      .dark .preview-content table:hover {
-        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+        border-color: #444;
       }
       .preview-content th {
-        background: #f8fafc;
-        padding: 1rem;
+        background: #f5f5f5;
+        padding: 8px 12px;
         font-weight: 600;
         text-align: left;
-        border-bottom: 2px solid #e2e8f0;
+        border: 1px solid #ddd;
       }
       .dark .preview-content th {
-        background: #1e293b;
-        border-bottom-color: #334155;
+        background: #333;
+        border-color: #444;
       }
       .preview-content td {
-        padding: 1rem;
-        border-bottom: 1px solid #f1f5f9;
-        background: white;
+        padding: 8px 12px;
+        border: 1px solid #ddd;
       }
       .dark .preview-content td {
-        background: #0f172a;
-        border-bottom-color: #1e293b;
-      }
-      .preview-content tr:last-child td {
-        border-bottom: none;
+        border-color: #444;
       }
       
-      /* KaTeX Fixes */
+      /* KaTeX Standard Styles */
       .preview-content .katex-display {
-        margin: 2em 0;
-        padding: 1.5em;
-        background: rgba(0, 0, 0, 0.02);
-        border-radius: 8px;
+        margin: 1.5em 0;
+        padding: 1em;
+        text-align: center;
       }
-      .dark .preview-content .katex-display {
-        background: rgba(255, 255, 255, 0.03);
+      .preview-content .katex .frac-line {
+        border-bottom-width: 0.04em !important;
+        margin: 0.1em 0 !important;
+      }
+      .preview-content .katex .mfrac {
+        vertical-align: middle !important;
+      }
+      .preview-content .katex .mfrac > span {
+        text-align: center !important;
+      }
+
+      /* Image Padding */
+      .preview-content img {
+        margin-top: 1.5em;
+        margin-bottom: 1.5em;
+        max-width: 100%;
+        height: auto;
       }
     `;
   }, [settings]);
@@ -151,7 +151,7 @@ export const Preview: React.FC<PreviewProps> = ({ content, isProcessing, onClear
   return (
     <div className="h-full overflow-auto relative scroll-smooth">
       <style>{dynamicStyles}</style>
-      
+
       {/* Clear Preview button */}
       {onClear && (
         <button
@@ -162,8 +162,8 @@ export const Preview: React.FC<PreviewProps> = ({ content, isProcessing, onClear
           <i className="bi bi-trash3 text-red-500" />
         </button>
       )}
-      
-      <div 
+
+      <div
         className="preview-content prose prose-lg dark:prose-invert max-w-none p-8 lg:p-12
                    prose-headings:text-gray-900 dark:prose-headings:text-gray-100
                    prose-p:text-gray-700 dark:prose-p:text-gray-300

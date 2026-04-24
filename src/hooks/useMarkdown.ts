@@ -4,12 +4,15 @@ import remarkParse from 'remark-parse';
 import remarkGfm from 'remark-gfm';
 import remarkEmoji from 'remark-emoji';
 import remarkMath from 'remark-math';
+import remarkBreaks from 'remark-breaks';
 import remarkToc from 'remark-toc';
 import remarkRehype from 'remark-rehype';
 import rehypeKatex from 'rehype-katex';
 import rehypeSlug from 'rehype-slug';
+import rehypeRaw from 'rehype-raw';
 import rehypeStringify from 'rehype-stringify';
 import rehypeHighlight from 'rehype-highlight';
+import { VFile } from 'vfile';
 import type { PdfSettings } from '../types';
 
 export const useMarkdown = () => {
@@ -37,17 +40,20 @@ export const useMarkdown = () => {
       const processor = unified()
         .use(remarkParse)
         .use(remarkGfm)
+        .use(remarkBreaks)
         .use(remarkEmoji)
         .use(remarkMath)
         .use(remarkToc, { heading: settings?.tocTitle || 'Table of Contents', tight: true })
         .use(remarkRehype, { allowDangerousHtml: true })
+        .use(rehypeRaw)
         .use(rehypeSlug)
         .use(rehypeKatex)
         .use(rehypeHighlight)
-        .use(rehypeStringify, { allowDangerousHtml: true });
+        .use(rehypeStringify);
 
-      const result = await processor.process(markdownContent);
-      setProcessedHtml(String(result));
+      const file = new VFile(markdownContent);
+      const result = await processor.process(file);
+      setProcessedHtml(result.toString());
     } catch (error) {
       console.error('Error processing markdown:', error);
       setProcessedHtml('<p class="text-red-500">Error processing content</p>');

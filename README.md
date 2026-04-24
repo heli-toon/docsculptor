@@ -75,7 +75,6 @@ npm run build
 yarn build
 ```
 
-```
 
 ### ⌨️ Keyboard Shortcuts
 
@@ -277,11 +276,10 @@ If you find DocSculptor useful, please:
 
 - **Project Link**: [https://github.com/heli-toon/docsculptor](https://github.com/heli-toon/docsculptor)
 - **Issues**: [https://github.com/heli-toon/docsculptor/issues](https://github.com/heli-toon/docsculptor/issues)
-- **Discussions**: [https://github.com/heli-toon/docsculptor/discussions](https://github.com/heli-toon/docsculptor/discussions)
 
 ---
 
 **Made with ❤️ by the Salay Abdul Muhaimin Kanton**
 
 *Transform your documents, sculpt your PDFs.*
-````
+
