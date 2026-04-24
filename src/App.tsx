@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
+import { useHotkey } from '@tanstack/react-hotkeys';
 import { FileUpload } from './components/FileUpload';
 import { Preview } from './components/Preview';
 import { Settings } from './components/Settings';
@@ -31,14 +32,29 @@ function App() {
     includeCoverPage: false,
     includePageNumbers: false,
     headerText: '',
-    footerText: ''
+    footerText: '',
+    pageNumberStyle: 'simple',
+    pageNumberPosition: 'bottom-right'
   });
+
+  // Load draft on mount
+  useEffect(() => {
+    const savedDraft = localStorage.getItem('docsculptor_draft');
+    if (savedDraft) {
+      try {
+        const draft = JSON.parse(savedDraft);
+        setCurrentFile(draft);
+      } catch (e) {
+        console.error('Failed to load draft:', e);
+      }
+    }
+  }, []);
 
   useEffect(() => {
     if (currentFile && currentFile.name) {
-      processMarkdown(currentFile.content, currentFile.type);
+      processMarkdown(currentFile.content, currentFile.type, settings);
     }
-  }, [currentFile, processMarkdown]);
+  }, [currentFile, processMarkdown, settings]);
 
   const handleFileSelect = (file: MarkdownFile) => {
     if (!file.name) {
@@ -51,10 +67,10 @@ function App() {
 
   const handlePastePreview = (content: string, type: 'markdown' | 'html') => {
     setCurrentFile(null);
-    processMarkdown(content, type);
+    processMarkdown(content, type, settings);
   };
 
-  const handleExport = async () => {
+  const handleExport = useCallback(async () => {
     if (!processedHtml) return;
 
     try {
@@ -66,16 +82,51 @@ function App() {
       console.error('Export failed:', error);
       alert('Export failed. Please try again.');
     }
-  };
+  }, [processedHtml, currentFile, exportToPdf, settings]);
 
-  const handleSettingsToggle = () => {
-    setSettingsOpen(!settingsOpen);
-  };
+  const handleSettingsToggle = useCallback(() => {
+    setSettingsOpen(prev => !prev);
+  }, []);
 
   const handleClearPreview = () => {
     setCurrentFile(null);
     clearProcessedHtml();
+    localStorage.removeItem('docsculptor_draft');
   };
+
+  const handleSaveDraft = useCallback(() => {
+    if (currentFile) {
+      localStorage.setItem('docsculptor_draft', JSON.stringify(currentFile));
+      alert('Draft saved to local storage!');
+    } else {
+      alert('Nothing to save. Please upload or paste content first.');
+    }
+  }, [currentFile]);
+
+  const handleOpenFile = useCallback(() => {
+    document.getElementById('file-upload')?.click();
+  }, []);
+
+  // Keyboard Shortcuts
+  useHotkey('Mod+E', (e) => {
+    e.preventDefault();
+    handleExport();
+  });
+
+  useHotkey('Mod+O', (e) => {
+    e.preventDefault();
+    handleOpenFile();
+  });
+
+  useHotkey('Mod+S', (e) => {
+    e.preventDefault();
+    handleSaveDraft();
+  });
+
+  useHotkey('Mod+,', (e) => {
+    e.preventDefault();
+    handleSettingsToggle();
+  });
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -90,7 +141,7 @@ function App() {
   }, [settingsOpen]);
 
   return (
-    <div className="h-screen bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-gray-100 transition-colors duration-300">
+    <div className="h-screen overflow-hidden bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-gray-100 transition-colors duration-300 flex flex-col">
       <Toolbar
         currentFile={currentFile}
         onExport={handleExport}
@@ -102,14 +153,14 @@ function App() {
       />
 
       {settingsOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-25 z-30 transition-opacity duration-300 pointer-events-none" />
+        <div className="fixed inset-0 bg-black/25 dark:bg-black/50 z-30 transition-opacity duration-300 pointer-events-none" />
       )}
 
-      <div className="flex h-[calc(100vh-73px)]">
-        <div className={`flex-1 transition-all duration-300 ${settingsOpen ? 'mr-80' : ''}`}>
-          <div className="grid lg:grid-cols-2 h-full">
-            <div className="p-6 border-r border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900">
-              <div className="h-full flex flex-col">
+      <div className="flex flex-1 overflow-hidden relative">
+        <div className={`flex-1 transition-all duration-300 ${settingsOpen ? 'lg:mr-80' : ''} overflow-y-auto lg:overflow-hidden`}>
+          <div className="flex flex-col lg:flex-row h-full">
+            <div className="w-full lg:w-1/2 lg:h-full p-6 border-b lg:border-b-0 lg:border-r border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 overflow-y-auto">
+              <div className="min-h-full flex flex-col">
                 <div className="mb-6">
                   <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">
                     Upload Document
@@ -126,7 +177,7 @@ function App() {
                   <div className="mt-6">
                     <PasteInput
                       onPreview={handlePastePreview}
-                      onClear={() => { setCurrentFile(null); clearProcessedHtml(); }}
+                      onClear={handleClearPreview}
                       isProcessing={isProcessing}
                     />
                   </div>
@@ -134,8 +185,8 @@ function App() {
               </div>
             </div>
 
-            <div className="bg-white dark:bg-gray-900">
-              <div className="p-6 h-full flex flex-col">
+            <div className="w-full lg:w-1/2 lg:h-full bg-white dark:bg-gray-900 overflow-hidden flex flex-col">
+              <div className="p-6 flex-1 flex flex-col overflow-hidden">
                 <div className="mb-4">
                   <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">
                     Preview
@@ -149,6 +200,7 @@ function App() {
                     content={processedHtml} 
                     isProcessing={isProcessing} 
                     onClear={processedHtml ? handleClearPreview : undefined}
+                    settings={settings}
                   />
                 </div>
               </div>

@@ -32,6 +32,9 @@
 - **Progress Tracking**: Real-time export progress indication
 - **Responsive Design**: Works on desktop and mobile devices
 - **Keyboard Accessible**: Full keyboard navigation support
+- **Draft Saving**: Automatic local storage persistence
+- **Advanced Export Features**: Table of Contents, Page Numbering styles
+- **Rich Typography**: Custom fonts and premium table aesthetics
 
 ## 🚀 Quick Start
 
@@ -71,6 +74,17 @@ npm run build
 # or
 yarn build
 ```
+
+```
+
+### ⌨️ Keyboard Shortcuts
+
+| Shortcut | Action |
+|----------|--------|
+| `Ctrl + E` | Export to PDF |
+| `Ctrl + O` | Open File Dialog |
+| `Ctrl + S` | Save Draft to Local Storage |
+| `Ctrl + ,` | Toggle Settings Panel |
 
 ## 📖 Usage
 
@@ -116,6 +130,8 @@ yarn build
 | Margins | 0-50mm | Customizable page margins |
 | Font Sizes | Adjustable | Separate controls for body, headings, and code |
 | Font Families | Multiple options | Choose fonts for different text types |
+| Table of Contents | Toggle | Auto-generate TOC from headings |
+| Page Numbers | Style & Position | Customizable numbering (Simple, Total, Accent) |
 
 ### Markdown Features
 

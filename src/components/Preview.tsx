@@ -1,12 +1,14 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
+import type { PdfSettings } from '../types';
 
 interface PreviewProps {
   content: string;
   isProcessing: boolean;
   onClear?: () => void;
+  settings: PdfSettings;
 }
 
-export const Preview: React.FC<PreviewProps> = ({ content, isProcessing, onClear }) => {
+export const Preview: React.FC<PreviewProps> = ({ content, isProcessing, onClear, settings }) => {
   useEffect(() => {
     // Add syntax highlighting styles
     const link = document.createElement('link');
@@ -30,30 +32,100 @@ export const Preview: React.FC<PreviewProps> = ({ content, isProcessing, onClear
     katexLink.crossOrigin = 'anonymous';
     document.head.appendChild(katexLink);
 
-    // Add custom KaTeX fraction fix styles
-    const katexFixStyle = document.createElement('style');
-    katexFixStyle.id = 'katex-fraction-fix';
-    katexFixStyle.textContent = `
-      .katex .frac-line {
-        border-bottom-width: 0.04em !important;
-        margin: 0.1em 0 !important;
-      }
-      .katex .mfrac {
-        vertical-align: middle !important;
-      }
-      .katex .mfrac > span {
-        text-align: center !important;
-      }
-    `;
-    document.head.appendChild(katexFixStyle);
-
     return () => {
       document.getElementById('highlight-theme-light')?.remove();
       document.getElementById('highlight-theme-dark')?.remove();
       document.getElementById('katex-styles')?.remove();
-      document.getElementById('katex-fraction-fix')?.remove();
     };
   }, []);
+
+  const dynamicStyles = useMemo(() => {
+    return `
+      .preview-content {
+        font-family: ${settings.fonts.body};
+        font-size: ${settings.fontSize.body}px;
+        line-height: 1.6;
+      }
+      .preview-content h1, 
+      .preview-content h2, 
+      .preview-content h3, 
+      .preview-content h4, 
+      .preview-content h5, 
+      .preview-content h6 {
+        font-family: ${settings.fonts.headings};
+        font-weight: 700;
+        letter-spacing: -0.025em;
+        margin-top: 2em;
+        margin-bottom: 0.8em;
+      }
+      .preview-content h1 { font-size: ${settings.fontSize.headings}px; border-bottom: 2px solid currentColor; padding-bottom: 0.3em; }
+      .preview-content h2 { font-size: ${settings.fontSize.headings * 0.85}px; }
+      .preview-content h3 { font-size: ${settings.fontSize.headings * 0.75}px; }
+      
+      .preview-content code, .preview-content pre {
+        font-family: ${settings.fonts.code};
+        font-size: ${settings.fontSize.code}px;
+      }
+
+      /* Enhanced Table Styling - "Pop Out" effect */
+      .preview-content table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        margin: 2em 0;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        border: 1px solid rgba(0, 0, 0, 0.1);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+      }
+      .dark .preview-content table {
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        border-color: rgba(255, 255, 255, 0.1);
+      }
+      .preview-content table:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+      }
+      .dark .preview-content table:hover {
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+      }
+      .preview-content th {
+        background: #f8fafc;
+        padding: 1rem;
+        font-weight: 600;
+        text-align: left;
+        border-bottom: 2px solid #e2e8f0;
+      }
+      .dark .preview-content th {
+        background: #1e293b;
+        border-bottom-color: #334155;
+      }
+      .preview-content td {
+        padding: 1rem;
+        border-bottom: 1px solid #f1f5f9;
+        background: white;
+      }
+      .dark .preview-content td {
+        background: #0f172a;
+        border-bottom-color: #1e293b;
+      }
+      .preview-content tr:last-child td {
+        border-bottom: none;
+      }
+      
+      /* KaTeX Fixes */
+      .preview-content .katex-display {
+        margin: 2em 0;
+        padding: 1.5em;
+        background: rgba(0, 0, 0, 0.02);
+        border-radius: 8px;
+      }
+      .dark .preview-content .katex-display {
+        background: rgba(255, 255, 255, 0.03);
+      }
+    `;
+  }, [settings]);
 
   if (isProcessing) {
     return (
@@ -77,36 +149,30 @@ export const Preview: React.FC<PreviewProps> = ({ content, isProcessing, onClear
   }
 
   return (
-    <div className="h-full overflow-auto relative">
+    <div className="h-full overflow-auto relative scroll-smooth">
+      <style>{dynamicStyles}</style>
+      
       {/* Clear Preview button */}
       {onClear && (
         <button
           onClick={onClear}
-          className="absolute top-4 right-4 z-10 p-2 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-colors cursor-pointer"
+          className="absolute top-4 right-4 z-10 p-2 bg-gray-100/80 dark:bg-gray-700/80 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-all cursor-pointer backdrop-blur-sm shadow-sm"
           title="Clear Preview"
         >
-          <i className="bi bi-x-lg text-gray-500 dark:text-gray-400" />
+          <i className="bi bi-trash3 text-red-500" />
         </button>
       )}
       
       <div 
-        className="prose prose-lg dark:prose-invert max-w-none p-6
-                   prose-headings:font-semibold prose-headings:text-gray-900 dark:prose-headings:text-gray-100
-                   prose-p:text-gray-700 dark:prose-p:text-gray-300 prose-p:mb-5
+        className="preview-content prose prose-lg dark:prose-invert max-w-none p-8 lg:p-12
+                   prose-headings:text-gray-900 dark:prose-headings:text-gray-100
+                   prose-p:text-gray-700 dark:prose-p:text-gray-300
                    prose-a:text-blue-600 dark:prose-a:text-blue-400 prose-a:no-underline hover:prose-a:underline
-                   prose-code:text-sm prose-code:bg-gray-100 dark:prose-code:bg-gray-800 prose-code:px-1 prose-code:py-0.5 prose-code:rounded
-                   prose-pre:bg-gray-50 dark:prose-pre:bg-gray-900 prose-pre:border prose-pre:border-gray-200 dark:prose-pre:border-gray-700
-                   prose-blockquote:border-l-blue-500 prose-blockquote:bg-blue-50 dark:prose-blockquote:bg-blue-900/20
-                   prose-table:w-full prose-table:border-collapse prose-table:my-6
-                   prose-th:border-2 prose-th:border-gray-300 dark:prose-th:border-gray-600 prose-th:bg-gray-100 dark:prose-th:bg-gray-800 prose-th:p-3 prose-th:text-left prose-th:font-semibold
-                   prose-td:border prose-td:border-gray-300 dark:prose-td:border-gray-600 prose-td:p-3
-                   prose-thead:border-b-2 prose-thead:border-gray-300 dark:prose-thead:border-gray-600
-                   prose-tbody:divide-y prose-tbody:divide-gray-200 dark:prose-tbody:divide-gray-700
-                   [&&_hr]:mt-8 [&&_hr]:mb-8 [&&_hr]:border-t-2 [&&_hr]:border-gray-300 dark:[&&_hr]:border-gray-700
-                   [&&_pre]:mt-8 [&&_pre]:mb-8
-                   [&&_.katex-display]:my-6 [&&_.katex-display]:overflow-visible [&&_.katex-display]:block [&&_.katex-display]:w-full
-                   [&&_.katex]:text-inherit [&&_.katex]:whitespace-normal
-                   [&&_.katex-html]:overflow-visible"
+                   prose-code:text-blue-600 dark:prose-code:text-blue-400 prose-code:bg-blue-50 dark:prose-code:bg-blue-900/30 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-code:before:content-none prose-code:after:content-none
+                   prose-pre:bg-gray-50 dark:prose-pre:bg-gray-900/50 prose-pre:border prose-pre:border-gray-200 dark:prose-pre:border-gray-800 prose-pre:rounded-xl
+                   prose-blockquote:border-l-4 prose-blockquote:border-blue-500 prose-blockquote:bg-blue-50/50 dark:prose-blockquote:bg-blue-900/10 prose-blockquote:py-1 prose-blockquote:rounded-r-lg
+                   prose-img:rounded-xl prose-img:shadow-lg
+                   [&&_hr]:border-gray-200 dark:[&&_hr]:border-gray-800 [&&_hr]:my-12"
         dangerouslySetInnerHTML={{ __html: content }}
       />
     </div>

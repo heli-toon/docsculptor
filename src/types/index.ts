@@ -27,8 +27,11 @@ export interface PdfSettings {
       code: string;
     };
     includeTableOfContents: boolean;
+    tocTitle?: string;
     includeCoverPage: boolean;
     includePageNumbers: boolean;
+    pageNumberStyle?: 'simple' | 'total' | 'accent';
+    pageNumberPosition?: 'bottom-right' | 'bottom-center' | 'top-right';
     headerText: string;
     footerText: string;
 }

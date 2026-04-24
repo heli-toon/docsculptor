@@ -32,7 +32,7 @@ DOCSCULPTOR - FEATURE IDEAS & ROADMAP
 📚 CONTENT ENHANCEMENT
 ---------------------
 □ Advanced Markdown Features
-  - Math equations (KaTeX/MathJax support)
+  - Math equations (KaTeX support) [DONE]
   - Mermaid diagrams and flowcharts
   - Custom containers/callouts/admonitions
   - Footnotes and endnotes support
@@ -44,9 +44,9 @@ DOCSCULPTOR - FEATURE IDEAS & ROADMAP
   - Custom headers/footers with variables
   - Document properties and tags
 
-□ Table of Contents (Implement existing feature)
-  - Auto-generated TOC from headings
-  - Clickable TOC with page numbers (for text PDF)
+□ Table of Contents (Implemented)
+  - Auto-generated TOC from headings [DONE]
+  - Clickable TOC with page numbers [DONE]
   - Customizable TOC depth and styling
   - TOC position options (before content, sidebar)
 
@@ -62,14 +62,15 @@ DOCSCULPTOR - FEATURE IDEAS & ROADMAP
   - Multiple preview themes (GitHub, Academic, Minimal, Dark)
   - Dark/light mode for PDF output
   - Custom color schemes and branding
-  - Font selection and preview
+  - Font selection and preview [DONE]
+  - Table "pop out" aesthetics [DONE]
 
-□ Keyboard Shortcuts
-  - Ctrl+E for export
-  - Ctrl+O for file open
-  - Ctrl+S for save draft
-  - Quick settings toggle (Ctrl+,)
-  - Full keyboard navigation
+□ Keyboard Shortcuts (Implemented)
+  - Ctrl+E for export [DONE]
+  - Ctrl+O for file open [DONE]
+  - Ctrl+S for save draft [DONE]
+  - Quick settings toggle (Ctrl+,) [DONE]
+  - Full keyboard navigation [IMPROVED]
 
 □ Drag & Drop Enhancements
   - Reorder settings sections
@@ -96,7 +97,7 @@ DOCSCULPTOR - FEATURE IDEAS & ROADMAP
   - Password protection for PDFs
   - Digital signatures
   - Custom page headers/footers with variables
-  - Page numbering styles and positions
+  - Page numbering styles and positions [DONE]
 
 📱 PROGRESSIVE WEB APP
 ---------------------
@@ -165,13 +166,11 @@ DOCSCULPTOR - FEATURE IDEAS & ROADMAP
 
 🎯 PRIORITY RANKING
 ------------------
-1. HIGH: Math equations support (KaTeX)
-2. HIGH: TOC implementation (UI already exists)
-3. MEDIUM: Template system
-4. MEDIUM: Keyboard shortcuts
-5. MEDIUM: Editor integration
-6. LOW: Cloud integration
-7. LOW: Analytics dashboard
+1. HIGH: Batch Processing
+2. HIGH: Template system
+3. MEDIUM: Editor integration
+4. MEDIUM: Cloud integration
+5. LOW: Analytics dashboard
 
 📝 IMPLEMENTATION NOTES
 ----------------------

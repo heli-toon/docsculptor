@@ -365,6 +365,39 @@ export const useTextPdfExport = () => {
         processNode(child);
       }
 
+      // Add Page Numbers
+      if (settings.includePageNumbers) {
+        const totalPages = (pdf as any).internal.getNumberOfPages();
+        for (let i = 1; i <= totalPages; i++) {
+          pdf.setPage(i);
+          pdf.setFont('helvetica', 'normal');
+          pdf.setFontSize(10);
+          pdf.setTextColor(150, 150, 150);
+          
+          let pageText = '';
+          if (settings.pageNumberStyle === 'total') {
+            pageText = `${i} / ${totalPages}`;
+          } else if (settings.pageNumberStyle === 'accent') {
+            pageText = `— ${i} —`;
+          } else {
+            pageText = `${i}`;
+          }
+          
+          const textWidth = pdf.getTextWidth(pageText);
+          let x = pageWidth - settings.margins.right - textWidth;
+          let y = pageHeight - (settings.margins.bottom / 2);
+          
+          if (settings.pageNumberPosition === 'bottom-center') {
+            x = (pageWidth - textWidth) / 2;
+          } else if (settings.pageNumberPosition === 'top-right') {
+            x = pageWidth - settings.margins.right - textWidth;
+            y = settings.margins.top / 2;
+          }
+          
+          pdf.text(pageText, x, y);
+        }
+      }
+
       // Save the PDF
       pdf.save(`${fileName}.pdf`);
 

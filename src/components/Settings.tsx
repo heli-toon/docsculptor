@@ -35,15 +35,18 @@ export const Settings: React.FC<SettingsProps> = ({
     <div
       data-settings-panel
       className={`
-      fixed right-0 top-0 h-full w-80 bg-white dark:bg-gray-900 border-l border-gray-200 dark:border-gray-700 
-      transform transition-transform duration-300 ease-in-out z-40
+      fixed right-0 top-0 h-full w-full sm:w-80 bg-white dark:bg-gray-900 border-l border-gray-200 dark:border-gray-700 
+      transform transition-transform duration-300 ease-in-out z-40 shadow-2xl
       ${isOpen ? 'translate-x-0' : 'translate-x-full'}
     `}>
       <div className="p-6 h-full overflow-y-auto">
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
-            Export Settings
-          </h2>
+        <div className="flex items-center justify-between mb-8">
+          <div>
+            <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">
+              Export Settings
+            </h2>
+            <p className="text-xs text-gray-500 mt-1 uppercase tracking-wider">Customize your output</p>
+          </div>
           <button title='Close Settings'
             type='button'
             onClick={onToggle}
@@ -53,233 +56,199 @@ export const Settings: React.FC<SettingsProps> = ({
           </button>
         </div>
 
-        <div className="space-y-6">
-          {/* Export Mode */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Export Mode
-            </label>
-            <div className="space-y-2">
-              <label className="flex items-center p-3 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer">
-                <input
-                  type="radio"
-                  name="exportMode"
-                  value="text"
-                  checked={settings.exportMode === 'text'}
-                  onChange={(e) => updateSettings({ exportMode: e.target.value as 'text' | 'image' })}
-                  className="mr-3"
-                />
-                <div>
-                  <span className="font-medium text-gray-900 dark:text-gray-100">Text PDF</span>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">Selectable text, smaller file size, faster export, emojis removed</p>
+        <div className="space-y-8">
+          {/* Document Features Section */}
+          <section className="space-y-4">
+            <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-widest">Document Features</h3>
+            
+            <div className="space-y-3">
+              {/* Table of Contents */}
+              <div className="p-3 bg-gray-50 dark:bg-gray-800/50 rounded-xl space-y-3">
+                <label className="flex items-center justify-between cursor-pointer">
+                  <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Table of Contents</span>
+                  <input
+                    type="checkbox"
+                    checked={settings.includeTableOfContents}
+                    onChange={(e) => updateSettings({ includeTableOfContents: e.target.checked })}
+                    className="w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
+                  />
+                </label>
+                {settings.includeTableOfContents && (
+                  <input
+                    type="text"
+                    placeholder="TOC Title (e.g. Table of Contents)"
+                    value={settings.tocTitle || ''}
+                    onChange={(e) => updateSettings({ tocTitle: e.target.value })}
+                    className="w-full p-2 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                  />
+                )}
+              </div>
+
+              {/* Page Numbers */}
+              <div className="p-3 bg-gray-50 dark:bg-gray-800/50 rounded-xl space-y-3">
+                <label className="flex items-center justify-between cursor-pointer">
+                  <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Page Numbers</span>
+                  <input
+                    type="checkbox"
+                    checked={settings.includePageNumbers}
+                    onChange={(e) => updateSettings({ includePageNumbers: e.target.checked })}
+                    className="w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
+                  />
+                </label>
+                {settings.includePageNumbers && (
+                  <div className="grid grid-cols-2 gap-2">
+                    <select
+                      value={settings.pageNumberStyle}
+                      onChange={(e) => updateSettings({ pageNumberStyle: e.target.value as any })}
+                      className="w-full p-2 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-800"
+                    >
+                      <option value="simple">Style: 1</option>
+                      <option value="total">Style: 1 / 10</option>
+                      <option value="accent">Style: — 1 —</option>
+                    </select>
+                    <select
+                      value={settings.pageNumberPosition}
+                      onChange={(e) => updateSettings({ pageNumberPosition: e.target.value as any })}
+                      className="w-full p-2 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-800"
+                    >
+                      <option value="bottom-right">Bottom Right</option>
+                      <option value="bottom-center">Bottom Center</option>
+                      <option value="top-right">Top Right</option>
+                    </select>
+                  </div>
+                )}
+              </div>
+            </div>
+          </section>
+
+          {/* Export Settings Section */}
+          <section className="space-y-4">
+            <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-widest">Export Config</h3>
+            
+            <div className="space-y-4">
+              {/* Export Mode */}
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  onClick={() => updateSettings({ exportMode: 'image' })}
+                  className={`p-2 text-xs border rounded-lg transition-all ${
+                    settings.exportMode === 'image'
+                      ? 'bg-blue-500 text-white border-blue-500 shadow-md'
+                      : 'border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300'
+                  }`}
+                >
+                  Image Mode
+                </button>
+                <button
+                  onClick={() => updateSettings({ exportMode: 'text' })}
+                  className={`p-2 text-xs border rounded-lg transition-all ${
+                    settings.exportMode === 'text'
+                      ? 'bg-blue-500 text-white border-blue-500 shadow-md'
+                      : 'border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300'
+                  }`}
+                >
+                  Text Mode
+                </button>
+              </div>
+
+              {/* Page Format & Orientation */}
+              <div className="grid grid-cols-2 gap-2">
+                <select title='Page Format'
+                  value={settings.pageFormat}
+                  onChange={(e) => updateSettings({ pageFormat: e.target.value as any })}
+                  className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm bg-white dark:bg-gray-800"
+                >
+                  <option value="A4">A4</option>
+                  <option value="Letter">Letter</option>
+                  <option value="Legal">Legal</option>
+                </select>
+                <select title='Orientation'
+                  value={settings.orientation}
+                  onChange={(e) => updateSettings({ orientation: e.target.value as any })}
+                  className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm bg-white dark:bg-gray-800"
+                >
+                  <option value="portrait">Portrait</option>
+                  <option value="landscape">Landscape</option>
+                </select>
+              </div>
+            </div>
+          </section>
+
+          {/* Typography Section */}
+          <section className="space-y-4">
+            <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-widest">Typography</h3>
+            
+            <div className="space-y-4">
+              {/* Font Families */}
+              <div className="space-y-3">
+                <div className="flex items-center space-x-2">
+                  <i className="bi bi-fonts text-gray-400" />
+                  <select title='Body Font'
+                    value={settings.fonts.body}
+                    onChange={(e) => updateNestedSettings('fonts', { body: e.target.value })}
+                    className="flex-1 p-2 border border-gray-300 dark:border-gray-600 rounded text-xs bg-white dark:bg-gray-800"
+                  >
+                    <option value="system-ui, sans-serif">Body: System Sans</option>
+                    <option value="Georgia, serif">Body: Georgia</option>
+                    <option value="Times, serif">Body: Times</option>
+                  </select>
                 </div>
-              </label>
-              <label className="flex items-center p-3 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer">
-                <input
-                  type="radio"
-                  name="exportMode"
-                  value="image"
-                  checked={settings.exportMode === 'image'}
-                  onChange={(e) => updateSettings({ exportMode: e.target.value as 'text' | 'image' })}
-                  className="mr-3"
-                />
-                <div>
-                  <span className="font-medium text-gray-900 dark:text-gray-100">Image PDF</span>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">Exact visual match to preview, larger file size</p>
+                <div className="flex items-center space-x-2">
+                  <i className="bi bi-type-h1 text-gray-400" />
+                  <select title='Heading Font'
+                    value={settings.fonts.headings}
+                    onChange={(e) => updateNestedSettings('fonts', { headings: e.target.value })}
+                    className="flex-1 p-2 border border-gray-300 dark:border-gray-600 rounded text-xs bg-white dark:bg-gray-800"
+                  >
+                    <option value="system-ui, sans-serif">Heading: System Sans</option>
+                    <option value="Georgia, serif">Heading: Georgia</option>
+                    <option value="Arial, sans-serif">Heading: Arial</option>
+                  </select>
                 </div>
-              </label>
-            </div>
-          </div>
-
-          {/* Page Format */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Page Format
-            </label>
-            <select title='Page Format'
-              value={settings.pageFormat}
-              onChange={(e) => updateSettings({ pageFormat: e.target.value as PdfSettings['pageFormat'] })}
-              className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            >
-              <option value="A4">A4</option>
-              <option value="Letter">Letter</option>
-              <option value="Legal">Legal</option>
-            </select>
-          </div>
-
-          {/* Orientation */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Orientation
-            </label>
-            <div className="flex space-x-2">
-              <button
-                onClick={() => updateSettings({ orientation: 'portrait' })}
-                className={`flex-1 p-2 border rounded-lg transition-colors cursor-pointer ${
-                  settings.orientation === 'portrait'
-                    ? 'bg-blue-500 text-white border-blue-500'
-                    : 'border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800'
-                }`}
-              >
-                Portrait
-              </button>
-              <button
-                onClick={() => updateSettings({ orientation: 'landscape' })}
-                className={`flex-1 p-2 border rounded-lg transition-colors cursor-pointer ${
-                  settings.orientation === 'landscape'
-                    ? 'bg-blue-500 text-white border-blue-500'
-                    : 'border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800'
-                }`}
-              >
-                Landscape
-              </button>
-            </div>
-          </div>
-
-          {/* Margins */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Margins (mm)
-            </label>
-            <div className="grid grid-cols-2 gap-2">
-              <div>
-                <label className="block text-xs text-gray-500 mb-1">Top</label>
-                <input title='Top Margin'
-                  type="number"
-                  value={settings.margins.top}
-                  onChange={(e) => updateNestedSettings('margins', { top: Number(e.target.value) })}
-                  className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
-                  min="0"
-                  max="50"
-                />
               </div>
-              <div>
-                <label className="block text-xs text-gray-500 mb-1">Right</label>
-                <input title='Right Margin'
-                  type="number"
-                  value={settings.margins.right}
-                  onChange={(e) => updateNestedSettings('margins', { right: Number(e.target.value) })}
-                  className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
-                  min="0"
-                  max="50"
-                />
-              </div>
-              <div>
-                <label className="block text-xs text-gray-500 mb-1">Bottom</label>
-                <input title='Bottom Margin'
-                  type="number"
-                  value={settings.margins.bottom}
-                  onChange={(e) => updateNestedSettings('margins', { bottom: Number(e.target.value) })}
-                  className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
-                  min="0"
-                  max="50"
-                />
-              </div>
-              <div>
-                <label className="block text-xs text-gray-500 mb-1">Left</label>
-                <input title='Left Margin'
-                  type="number"
-                  value={settings.margins.left}
-                  onChange={(e) => updateNestedSettings('margins', { left: Number(e.target.value) })}
-                  className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
-                  min="0"
-                  max="50"
-                />
+
+              {/* Font Sizes */}
+              <div className="space-y-4 p-4 bg-gray-50 dark:bg-gray-800/50 rounded-xl">
+                <div>
+                  <div className="flex justify-between mb-1">
+                    <span className="text-[10px] text-gray-500 uppercase">Body Size</span>
+                    <span className="text-[10px] font-bold text-blue-500">{settings.fontSize.body}px</span>
+                  </div>
+                  <input type="range" min="10" max="24" value={settings.fontSize.body}
+                    onChange={(e) => updateNestedSettings('fontSize', { body: Number(e.target.value) })}
+                    className="w-full accent-blue-500"
+                  />
+                </div>
+                <div>
+                  <div className="flex justify-between mb-1">
+                    <span className="text-[10px] text-gray-500 uppercase">Heading Size</span>
+                    <span className="text-[10px] font-bold text-blue-500">{settings.fontSize.headings}px</span>
+                  </div>
+                  <input type="range" min="16" max="48" value={settings.fontSize.headings}
+                    onChange={(e) => updateNestedSettings('fontSize', { headings: Number(e.target.value) })}
+                    className="w-full accent-blue-500"
+                  />
+                </div>
               </div>
             </div>
-          </div>
+          </section>
 
-          {/* Font Sizes */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Font Sizes (px)
-            </label>
-            <div className="space-y-2">
-              <div>
-                <label className="block text-xs text-gray-500 mb-1">Body Text</label>
-                <input title='Body Font Size'
-                  type="range"
-                  min="10"
-                  max="20"
-                  value={settings.fontSize.body}
-                  onChange={(e) => updateNestedSettings('fontSize', { body: Number(e.target.value) })}
-                  className="w-full"
-                />
-                <span className="text-xs text-gray-500">{settings.fontSize.body}px</span>
-              </div>
-              <div>
-                <label className="block text-xs text-gray-500 mb-1">Headings</label>
-                <input title='Heading Font Size'
-                  type="range"
-                  min="16"
-                  max="32"
-                  value={settings.fontSize.headings}
-                  onChange={(e) => updateNestedSettings('fontSize', { headings: Number(e.target.value) })}
-                  className="w-full"
-                />
-                <span className="text-xs text-gray-500">{settings.fontSize.headings}px</span>
-              </div>
-              <div>
-                <label className="block text-xs text-gray-500 mb-1">Code</label>
-                <input title='Code Font Size'
-                  type="range"
-                  min="8"
-                  max="16"
-                  value={settings.fontSize.code}
-                  onChange={(e) => updateNestedSettings('fontSize', { code: Number(e.target.value) })}
-                  className="w-full"
-                />
-                <span className="text-xs text-gray-500">{settings.fontSize.code}px</span>
-              </div>
+          {/* Margins Section */}
+          <section className="space-y-4 pb-10">
+            <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-widest">Layout Margins</h3>
+            <div className="grid grid-cols-2 gap-3">
+              {['top', 'right', 'bottom', 'left'].map((dir) => (
+                <div key={dir} className="space-y-1">
+                  <label className="text-[10px] text-gray-500 uppercase">{dir}</label>
+                  <input
+                    type="number"
+                    value={settings.margins[dir as keyof PdfSettings['margins']]}
+                    onChange={(e) => updateNestedSettings('margins', { [dir]: Number(e.target.value) })}
+                    className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded text-xs bg-white dark:bg-gray-800"
+                  />
+                </div>
+              ))}
             </div>
-          </div>
-
-          {/* Font Families */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Font Families
-            </label>
-            <div className="space-y-2">
-              <div>
-                <label className="block text-xs text-gray-500 mb-1">Body Font</label>
-                <select title='Body Font'
-                  value={settings.fonts.body}
-                  onChange={(e) => updateNestedSettings('fonts', { body: e.target.value })}
-                  className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
-                >
-                  <option value="system-ui, sans-serif">System Sans</option>
-                  <option value="Georgia, serif">Georgia</option>
-                  <option value="Times, serif">Times</option>
-                  <option value="Arial, sans-serif">Arial</option>
-                </select>
-              </div>
-              <div>
-                <label className="block text-xs text-gray-500 mb-1">Heading Font</label>
-                <select title='Heading Font'
-                  value={settings.fonts.headings}
-                  onChange={(e) => updateNestedSettings('fonts', { headings: e.target.value })}
-                  className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
-                >
-                  <option value="system-ui, sans-serif">System Sans</option>
-                  <option value="Georgia, serif">Georgia</option>
-                  <option value="Times, serif">Times</option>
-                  <option value="Arial, sans-serif">Arial</option>
-                </select>
-              </div>
-              <div>
-                <label className="block text-xs text-gray-500 mb-1">Code Font</label>
-                <select title='Code Font'
-                  value={settings.fonts.code}
-                  onChange={(e) => updateNestedSettings('fonts', { code: e.target.value })}
-                  className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
-                >
-                  <option value="Monaco, monospace">Monaco</option>
-                  <option value="Consolas, monospace">Consolas</option>
-                  <option value="'Courier New', monospace">Courier New</option>
-                </select>
-              </div>
-            </div>
-          </div>
+          </section>
         </div>
       </div>
     </div>
