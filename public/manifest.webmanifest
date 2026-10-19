@@ -1,0 +1,19 @@
+{
+  "name": "DocSculptor",
+  "short_name": "DocSculptor",
+  "description": "Professional Markdown and HTML to PDF converter.",
+  "id": "/",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#2563eb",
+  "icons": [
+    {
+      "src": "/logo.png",
+      "sizes": "1024x1024",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

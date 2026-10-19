@@ -35,6 +35,7 @@
 - **Draft Saving**: Automatic local storage persistence
 - **Advanced Export Features**: Table of Contents, Page Numbering styles
 - **Rich Typography**: Custom fonts and premium table aesthetics
+- **Installable PWA**: Install DocSculptor on supported devices and reopen the app offline after the first visit
 
 ## 🚀 Quick Start
 
