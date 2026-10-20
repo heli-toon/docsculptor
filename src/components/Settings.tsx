@@ -1,5 +1,17 @@
-import React from 'react';
+import React, { useState } from 'react';
 import type { PdfSettings } from '../types';
+
+const MIN_MARGIN_MM = 0;
+const MAX_MARGIN_MM = 50;
+const MIN_CONTENT_SIZE_MM = 20;
+
+const PAGE_SIZES_MM = {
+  A4: { width: 210, height: 297 },
+  Letter: { width: 215.9, height: 279.4 },
+  Legal: { width: 215.9, height: 355.6 },
+} as const;
+
+type MarginSide = keyof PdfSettings['margins'];
 
 interface SettingsProps {
   settings: PdfSettings;
@@ -14,6 +26,8 @@ export const Settings: React.FC<SettingsProps> = ({
   isOpen,
   onToggle
 }) => {
+  const [marginError, setMarginError] = useState<string | null>(null);
+
   const updateSettings = (updates: Partial<PdfSettings>) => {
     onSettingsChange({ ...settings, ...updates });
   };
@@ -29,6 +43,31 @@ export const Settings: React.FC<SettingsProps> = ({
         ...updates
       }
     });
+  };
+
+  const updateMargin = (side: MarginSide, value: number) => {
+    if (!Number.isFinite(value) || value < MIN_MARGIN_MM || value > MAX_MARGIN_MM) {
+      setMarginError(`Each margin must be between ${MIN_MARGIN_MM} and ${MAX_MARGIN_MM} mm.`);
+      return;
+    }
+
+    const margins = { ...settings.margins, [side]: value };
+    const pageSize = PAGE_SIZES_MM[settings.pageFormat];
+    const pageWidth = settings.orientation === 'portrait' ? pageSize.width : pageSize.height;
+    const pageHeight = settings.orientation === 'portrait' ? pageSize.height : pageSize.width;
+
+    if (margins.left + margins.right > pageWidth - MIN_CONTENT_SIZE_MM) {
+      setMarginError(`Left and right margins must leave at least ${MIN_CONTENT_SIZE_MM} mm of page width.`);
+      return;
+    }
+
+    if (margins.top + margins.bottom > pageHeight - MIN_CONTENT_SIZE_MM) {
+      setMarginError(`Top and bottom margins must leave at least ${MIN_CONTENT_SIZE_MM} mm of page height.`);
+      return;
+    }
+
+    setMarginError(null);
+    updateNestedSettings('margins', { [side]: value });
   };
 
   return (
@@ -233,21 +272,32 @@ export const Settings: React.FC<SettingsProps> = ({
           </section>
 
           {/* Margins Section */}
-          <section className="space-y-4 pb-10">
-            <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-widest">Layout Margins</h3>
+          <section className="space-y-4 pb-10" aria-labelledby="layout-margins-heading">
+            <h3 id="layout-margins-heading" className="text-xs font-semibold text-gray-400 uppercase tracking-widest">Layout Margins</h3>
             <div className="grid grid-cols-2 gap-3">
               {['top', 'right', 'bottom', 'left'].map((dir) => (
                 <div key={dir} className="space-y-1">
                   <label className="text-[10px] text-gray-500 uppercase">{dir}</label>
                   <input
                     type="number"
+                    min={MIN_MARGIN_MM}
+                    max={MAX_MARGIN_MM}
+                    step="1"
                     value={settings.margins[dir as keyof PdfSettings['margins']]}
-                    onChange={(e) => updateNestedSettings('margins', { [dir]: Number(e.target.value) })}
+                    onChange={(e) => updateMargin(dir as MarginSide, e.currentTarget.valueAsNumber)}
+                    aria-invalid={marginError ? 'true' : undefined}
+                    aria-describedby={marginError ? 'margin-error' : undefined}
                     className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded text-xs bg-white dark:bg-gray-800"
                   />
                 </div>
               ))}
             </div>
+            <p className="text-[10px] text-gray-500">0–50 mm per side. Opposing margins must leave space for content.</p>
+            {marginError && (
+              <p id="margin-error" role="alert" className="text-xs text-red-600 dark:text-red-400">
+                {marginError}
+              </p>
+            )}
           </section>
         </div>
       </div>
