@@ -64,8 +64,13 @@ function App() {
   };
 
   const handlePastePreview = (content: string, type: 'markdown' | 'html') => {
-    setCurrentFile(null);
-    processMarkdown(content, type, settings);
+    setCurrentFile({
+      name: `pasted-content.${type === 'markdown' ? 'md' : 'html'}`,
+      content,
+      type,
+      size: new Blob([content]).size,
+      lastModified: Date.now(),
+    });
   };
 
   const handleExport = useCallback(async () => {

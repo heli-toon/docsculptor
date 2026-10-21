@@ -32,7 +32,7 @@
 - **Progress Tracking**: Real-time export progress indication
 - **Responsive Design**: Works on desktop and mobile devices
 - **Keyboard Accessible**: Full keyboard navigation support
-- **Draft Saving**: Automatic local storage persistence
+- **Draft Saving**: Manually save and restore drafts with local storage
 - **Advanced Export Features**: Table of Contents, Page Numbering styles
 - **Rich Typography**: Custom fonts and premium table aesthetics
 - **Installable PWA**: Install DocSculptor on supported devices and reopen the app offline after the first visit
