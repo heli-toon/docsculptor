@@ -29,12 +29,26 @@ export const useTextPdfExport = () => {
       
       let yPosition = settings.margins.top;
       const lineHeight = settings.fontSize.body * 0.35;
+      const contentBottom = pageHeight - settings.margins.bottom;
 
-      // Function to add new page if needed
       const checkPageBreak = (neededHeight: number) => {
-        if (yPosition + neededHeight > pageHeight - settings.margins.bottom) {
+        if (yPosition > settings.margins.top && yPosition + neededHeight > contentBottom) {
           pdf.addPage();
           yPosition = settings.margins.top;
+        }
+      };
+
+      const renderLines = (
+        lines: string[],
+        x: number,
+        lineSpacing: number,
+        fontSize = settings.fontSize.body
+      ) => {
+        const renderedLineHeight = fontSize * 0.35 * lineSpacing;
+        for (const line of lines) {
+          checkPageBreak(renderedLineHeight);
+          pdf.text(line, x, yPosition);
+          yPosition += renderedLineHeight;
         }
       };
 
@@ -97,24 +111,15 @@ export const useTextPdfExport = () => {
       };
 
       // Process inline elements within a container
-      const processInlineText = (element: Element, yPos: number): number => {
-        let currentY = yPos;
-        
+      const processInlineText = (element: Element): void => {
         const fullText = getCleanTextContent(element, false);
         
         if (fullText.trim()) {
-          // More conservative page break check for paragraphs
-          const textHeight = lineHeight * 1.5; // Reduced check
-          checkPageBreak(textHeight);
-          
           pdf.setFont('helvetica', 'normal');
           pdf.setFontSize(settings.fontSize.body);
           const lines = pdf.splitTextToSize(fullText, maxWidth);
-          pdf.text(lines, margin, currentY);
-          currentY += lines.length * lineHeight * 1.2;
+          renderLines(lines, margin, 1.2, settings.fontSize.body);
         }
-        
-        return currentY;
       };
 
       // Process elements with proper hierarchy
@@ -147,17 +152,13 @@ export const useTextPdfExport = () => {
             const text = getCleanTextContent(element, false);
             
             if (text.trim()) {
-              // Less aggressive page break check for headings
-              const headingHeight = lineHeight * 3; // Reduced from lineHeight * 2
-              checkPageBreak(headingHeight);
-              
               yPosition += 5; // Reduced from 8
               pdf.setFont('helvetica', 'bold');
               pdf.setFontSize(fontSize);
               
               const lines = pdf.splitTextToSize(text, maxWidth);
-              pdf.text(lines, margin, yPosition);
-              yPosition += lines.length * lineHeight * 1.3 + 4; // Reduced spacing after heading
+              renderLines(lines, margin, 1.3, fontSize);
+              yPosition += 4; // Reduced spacing after heading
             }
             break;
           }
@@ -165,7 +166,7 @@ export const useTextPdfExport = () => {
           case 'p': {
             // Minimal spacing before paragraph, especially after headings
             yPosition += 1; // Reduced from 3
-            yPosition = processInlineText(element, yPosition);
+            processInlineText(element);
             yPosition += 2; // Reduced from 4
             break;
           }
@@ -174,7 +175,6 @@ export const useTextPdfExport = () => {
             const text = getCleanTextContent(element, true); // Preserve spacing for code
             
             if (text.trim()) {
-              checkPageBreak(lineHeight * 4); // Slightly more conservative
               yPosition += 5; // Reduced from 8
               pdf.setFont('courier', 'normal');
               pdf.setFontSize(Math.max(settings.fontSize.code, 8));
@@ -185,12 +185,12 @@ export const useTextPdfExport = () => {
                 const line = lines[i];
                 // Preserve empty lines in code blocks
                 if (line.length === 0) {
+                  checkPageBreak(lineHeight * 1.1);
                   yPosition += lineHeight * 1.1;
                 } else {
                   // Handle long lines by wrapping them
                   const wrappedLines = pdf.splitTextToSize(line, maxWidth - 10);
-                  pdf.text(wrappedLines, margin + 5, yPosition);
-                  yPosition += wrappedLines.length * lineHeight * 1.1;
+                  renderLines(wrappedLines, margin + 5, 1.1, Math.max(settings.fontSize.code, 8));
                 }
               }
               yPosition += 5; // Reduced from 8
@@ -215,15 +215,14 @@ export const useTextPdfExport = () => {
               const text = getCleanTextContent(li, false);
               
               if (text.trim()) {
-                checkPageBreak(lineHeight * 2);
                 pdf.setFont('helvetica', 'normal');
                 pdf.setFontSize(settings.fontSize.body);
                 
                 const bullet = tagName === 'ol' ? `${index + 1}. ` : '• ';
                 const bulletText = bullet + text;
                 const lines = pdf.splitTextToSize(bulletText, maxWidth - 8);
-                pdf.text(lines, margin + 5, yPosition);
-                yPosition += lines.length * lineHeight * 1.2 + 1; // Reduced spacing
+                renderLines(lines, margin + 5, 1.2, settings.fontSize.body);
+                yPosition += 1; // Reduced spacing
               }
             });
             yPosition += 3; // Reduced from 5
@@ -259,10 +258,6 @@ export const useTextPdfExport = () => {
             if (rows.length > 0) {
               const numCols = Math.max(...rows.map(r => r.length));
               const colWidth = (maxWidth - 10) / numCols;
-              const rowHeight = lineHeight * 2.5;
-              
-              checkPageBreak(rowHeight * (rows.length + 1));
-              
               pdf.setFont('helvetica', 'normal');
               pdf.setFontSize(settings.fontSize.body - 1);
               pdf.setLineWidth(0.2);
@@ -270,22 +265,29 @@ export const useTextPdfExport = () => {
               rows.forEach((row, rowIndex) => {
                 const isHeader = rowIndex === 0 && headerRows.length > 0;
                 const startX = margin + 5;
-                const startY = yPosition;
+                const cellLines = row.map((cell) => pdf.splitTextToSize(cell, colWidth - 4));
+                const rowHeight = Math.max(
+                  lineHeight * 2.5,
+                  ...cellLines.map((lines) => lines.length * lineHeight * 1.1 + 4)
+                );
+
+                checkPageBreak(rowHeight);
+                const startY = yPosition + rowHeight - 2;
                 
                 // Draw cell backgrounds for header
                 if (isHeader) {
                   pdf.setFillColor(245, 245, 245); // Light gray for header
-                  pdf.rect(startX, startY - rowHeight + 2, maxWidth - 10, rowHeight, 'F');
+                  pdf.rect(startX, startY - rowHeight, maxWidth - 10, rowHeight, 'F');
                 }
                 
                 // Draw cell borders and text
-                row.forEach((cell, colIndex) => {
+                row.forEach((_cell, colIndex) => {
                   const x = startX + (colIndex * colWidth);
                   const y = startY;
                   
                   // Draw cell border
                   pdf.setDrawColor(200, 200, 200);
-                  pdf.rect(x, y - rowHeight + 2, colWidth, rowHeight);
+                  pdf.rect(x, y - rowHeight, colWidth, rowHeight);
                   
                   // Draw text
                   if (isHeader) {
@@ -294,7 +296,7 @@ export const useTextPdfExport = () => {
                     pdf.setFont('helvetica', 'normal');
                   }
                   
-                  const lines = pdf.splitTextToSize(cell, colWidth - 4);
+                  const lines = cellLines[colIndex];
                   const textY = y - rowHeight + 2 + (rowHeight / 2) - ((lines.length * lineHeight * 1.1) / 2) + lineHeight;
                   pdf.text(lines, x + 2, textY);
                 });
