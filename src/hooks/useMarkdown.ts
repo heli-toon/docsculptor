@@ -14,6 +14,7 @@ import rehypeStringify from 'rehype-stringify';
 import rehypeHighlight from 'rehype-highlight';
 import { VFile } from 'vfile';
 import type { PdfSettings } from '../types';
+import { sanitizeHtml } from '../utils/sanitizeHtml';
 
 export const useMarkdown = () => {
   const [processedHtml, setProcessedHtml] = useState<string>('');
@@ -24,7 +25,7 @@ export const useMarkdown = () => {
     
     try {
       if (type === 'html') {
-        setProcessedHtml(content);
+        setProcessedHtml(sanitizeHtml(content));
         return;
       }
 
@@ -53,7 +54,7 @@ export const useMarkdown = () => {
 
       const file = new VFile(markdownContent);
       const result = await processor.process(file);
-      setProcessedHtml(result.toString());
+      setProcessedHtml(sanitizeHtml(result.toString()));
     } catch (error) {
       console.error('Error processing markdown:', error);
       setProcessedHtml('<p class="text-red-500">Error processing content</p>');

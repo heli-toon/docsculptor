@@ -1,5 +1,6 @@
 import jsPDF from 'jspdf';
 import type { PdfSettings } from '../types';
+import { sanitizeHtml } from '../utils/sanitizeHtml';
 
 export const useTextPdfExport = () => {
   const exportTextToPdf = async (
@@ -9,7 +10,7 @@ export const useTextPdfExport = () => {
   ) => {
     // Create a temporary element to parse HTML
     const tempDiv = document.createElement('div');
-    tempDiv.innerHTML = htmlContent;
+    tempDiv.innerHTML = sanitizeHtml(htmlContent);
     tempDiv.style.position = 'absolute';
     tempDiv.style.left = '-9999px';
     document.body.appendChild(tempDiv);

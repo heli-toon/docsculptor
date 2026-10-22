@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo } from 'react';
 import type { PdfSettings } from '../types';
+import { sanitizeHtml } from '../utils/sanitizeHtml';
 
 interface PreviewProps {
   content: string;
@@ -173,7 +174,7 @@ export const Preview: React.FC<PreviewProps> = ({ content, isProcessing, onClear
                    prose-blockquote:border-l-4 prose-blockquote:border-blue-500 prose-blockquote:bg-blue-50/50 dark:prose-blockquote:bg-blue-900/10 prose-blockquote:py-1 prose-blockquote:rounded-r-lg
                    prose-img:rounded-xl prose-img:shadow-lg
                    [&&_hr]:border-gray-200 dark:[&&_hr]:border-gray-800 [&&_hr]:my-12"
-        dangerouslySetInnerHTML={{ __html: content }}
+        dangerouslySetInnerHTML={{ __html: sanitizeHtml(content) }}
       />
     </div>
   );

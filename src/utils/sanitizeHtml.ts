@@ -1,0 +1,61 @@
+import DOMPurify from 'dompurify';
+
+const ALLOWED_TAGS = [
+  'a',
+  'blockquote',
+  'br',
+  'code',
+  'del',
+  'div',
+  'em',
+  'h1',
+  'h2',
+  'h3',
+  'h4',
+  'h5',
+  'h6',
+  'hr',
+  'img',
+  'li',
+  'ol',
+  'p',
+  'pre',
+  'span',
+  'strong',
+  'table',
+  'tbody',
+  'td',
+  'tfoot',
+  'th',
+  'thead',
+  'tr',
+  'ul',
+];
+
+const ALLOWED_ATTR = [
+  'alt',
+  'aria-hidden',
+  'aria-label',
+  'class',
+  'colspan',
+  'height',
+  'href',
+  'id',
+  'loading',
+  'rel',
+  'role',
+  'rowspan',
+  'src',
+  'style',
+  'target',
+  'title',
+  'width',
+];
+
+export const sanitizeHtml = (html: string): string =>
+  DOMPurify.sanitize(html, {
+    ALLOWED_ATTR,
+    ALLOWED_TAGS,
+    ALLOW_DATA_ATTR: false,
+    ALLOWED_URI_REGEXP: /^(?:(?:https?|mailto):|data:image\/(?:gif|jpe?g|png|webp);)/i,
+  });

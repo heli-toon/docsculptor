@@ -2,6 +2,7 @@ import { useState } from 'react';
 import html2pdf from 'html2pdf.js';
 import { useTextPdfExport } from './useTextPdfExport';
 import type { PdfSettings } from '../types';
+import { sanitizeHtml } from '../utils/sanitizeHtml';
 
 export const usePdfExport = () => {
   const [isExporting, setIsExporting] = useState(false);
@@ -14,7 +15,7 @@ export const usePdfExport = () => {
     settings: PdfSettings
   ) => {
     const element = document.createElement('div');
-    element.innerHTML = htmlContent;
+    element.innerHTML = sanitizeHtml(htmlContent);
     element.style.fontFamily = settings.fonts.body;
     element.style.fontSize = `${settings.fontSize.body}px`;
     element.style.lineHeight = '1.6';
