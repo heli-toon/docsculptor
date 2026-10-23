@@ -209,22 +209,54 @@ export const useTextPdfExport = () => {
 
           case 'ul':
           case 'ol': {
+            const renderList = (list: Element, depth = 0): void => {
+              const isOrdered = list.tagName.toLowerCase() === 'ol';
+              // Only process this list's immediate items. Descendant items belong to
+              // nested lists and are rendered recursively below.
+              const listItems = Array.from(list.children).filter(
+                (child): child is HTMLLIElement => child.tagName.toLowerCase() === 'li'
+              );
+              let itemNumber = isOrdered ? Number(list.getAttribute('start') || 1) : 0;
+
+              listItems.forEach((li) => {
+                if (isOrdered && li.hasAttribute('value')) {
+                  itemNumber = Number(li.getAttribute('value'));
+                }
+
+                // Exclude nested lists from the item's own text; their content is
+                // rendered separately so it is neither flattened nor duplicated.
+                const itemContent = li.cloneNode(true) as Element;
+                itemContent.querySelectorAll('ul, ol').forEach(nestedList => nestedList.remove());
+                const text = getCleanTextContent(itemContent, false);
+                const bullet = isOrdered ? `${itemNumber}. ` : '• ';
+                const listX = margin + 5 + (depth * 5);
+                const availableWidth = pageWidth - settings.margins.right - listX;
+
+                if (text.trim()) {
+                  pdf.setFont('helvetica', 'normal');
+                  pdf.setFontSize(settings.fontSize.body);
+
+                  const bulletWidth = pdf.getTextWidth(bullet);
+                  const lines = pdf.splitTextToSize(text, Math.max(10, availableWidth - bulletWidth));
+                  if (lines.length > 0) {
+                    renderLines([bullet + lines[0]], listX, 1.2, settings.fontSize.body);
+                    renderLines(lines.slice(1), listX + bulletWidth, 1.2, settings.fontSize.body);
+                  }
+                  yPosition += 1; // Reduced spacing
+                }
+
+                const nestedLists = Array.from(li.children).filter(child => {
+                  const childTag = child.tagName.toLowerCase();
+                  return childTag === 'ul' || childTag === 'ol';
+                });
+                nestedLists.forEach(nestedList => renderList(nestedList, depth + 1));
+
+                if (isOrdered) itemNumber += 1;
+              });
+            };
+
             yPosition += 3; // Reduced from 5
-            const listItems = element.querySelectorAll('li');
-            listItems.forEach((li, index) => {
-              const text = getCleanTextContent(li, false);
-              
-              if (text.trim()) {
-                pdf.setFont('helvetica', 'normal');
-                pdf.setFontSize(settings.fontSize.body);
-                
-                const bullet = tagName === 'ol' ? `${index + 1}. ` : '• ';
-                const bulletText = bullet + text;
-                const lines = pdf.splitTextToSize(bulletText, maxWidth - 8);
-                renderLines(lines, margin + 5, 1.2, settings.fontSize.body);
-                yPosition += 1; // Reduced spacing
-              }
-            });
+            renderList(element);
             yPosition += 3; // Reduced from 5
             break;
           }
