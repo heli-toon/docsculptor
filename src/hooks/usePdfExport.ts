@@ -164,7 +164,7 @@ export const usePdfExport = () => {
 
     setExportProgress(60);
     
-    const worker = html2pdf().from(element).set(options).toPdf().get('pdf').then((pdf: any) => {
+    const worker = html2pdf().from(element).set(options).toPdf().get('pdf').then((pdf) => {
       if (settings.includePageNumbers) {
         const totalPages = pdf.internal.getNumberOfPages();
         for (let i = 1; i <= totalPages; i++) {

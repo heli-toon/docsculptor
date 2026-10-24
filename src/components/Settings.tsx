@@ -138,7 +138,9 @@ export const Settings: React.FC<SettingsProps> = ({
                   <div className="grid grid-cols-2 gap-2">
                     <select
                       value={settings.pageNumberStyle}
-                      onChange={(e) => updateSettings({ pageNumberStyle: e.target.value as any })}
+                      onChange={(e) => updateSettings({
+                        pageNumberStyle: e.target.value as PdfSettings['pageNumberStyle']
+                      })}
                       className="w-full p-2 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-800"
                     >
                       <option value="simple">Style: 1</option>
@@ -147,7 +149,9 @@ export const Settings: React.FC<SettingsProps> = ({
                     </select>
                     <select
                       value={settings.pageNumberPosition}
-                      onChange={(e) => updateSettings({ pageNumberPosition: e.target.value as any })}
+                      onChange={(e) => updateSettings({
+                        pageNumberPosition: e.target.value as PdfSettings['pageNumberPosition']
+                      })}
                       className="w-full p-2 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-800"
                     >
                       <option value="bottom-right">Bottom Right</option>
@@ -193,7 +197,9 @@ export const Settings: React.FC<SettingsProps> = ({
               <div className="grid grid-cols-2 gap-2">
                 <select title='Page Format'
                   value={settings.pageFormat}
-                  onChange={(e) => updateSettings({ pageFormat: e.target.value as any })}
+                  onChange={(e) => updateSettings({
+                    pageFormat: e.target.value as PdfSettings['pageFormat']
+                  })}
                   className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm bg-white dark:bg-gray-800"
                 >
                   <option value="A4">A4</option>
@@ -202,7 +208,9 @@ export const Settings: React.FC<SettingsProps> = ({
                 </select>
                 <select title='Orientation'
                   value={settings.orientation}
-                  onChange={(e) => updateSettings({ orientation: e.target.value as any })}
+                  onChange={(e) => updateSettings({
+                    orientation: e.target.value as PdfSettings['orientation']
+                  })}
                   className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm bg-white dark:bg-gray-800"
                 >
                   <option value="portrait">Portrait</option>

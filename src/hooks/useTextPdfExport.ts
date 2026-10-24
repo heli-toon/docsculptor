@@ -19,7 +19,11 @@ export const useTextPdfExport = () => {
       const pdf = new jsPDF({
         orientation: settings.orientation,
         unit: 'mm',
-        format: settings.pageFormat.toLowerCase() as any
+        format: {
+          A4: 'a4',
+          Letter: 'letter',
+          Legal: 'legal'
+        }[settings.pageFormat]
       });
 
       const pageWidth = pdf.internal.pageSize.getWidth();
@@ -402,7 +406,7 @@ export const useTextPdfExport = () => {
 
       // Add Page Numbers
       if (settings.includePageNumbers) {
-        const totalPages = (pdf as any).internal.getNumberOfPages();
+        const totalPages = pdf.getNumberOfPages();
         for (let i = 1; i <= totalPages; i++) {
           pdf.setPage(i);
           pdf.setFont('helvetica', 'normal');
