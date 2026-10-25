@@ -114,6 +114,23 @@ export const useTextPdfExport = () => {
         return cleanText(textContent, preserveSpacing);
       };
 
+      type PdfPosition = {
+        page: number;
+        top: number;
+      };
+
+      type PendingPdfLink = {
+        page: number;
+        x: number;
+        y: number;
+        width: number;
+        height: number;
+        targetId: string;
+      };
+
+      const headingPositions = new Map<string, PdfPosition>();
+      const pendingPdfLinks: PendingPdfLink[] = [];
+
       // Process inline elements within a container
       const processInlineText = (element: Element): void => {
         const fullText = getCleanTextContent(element, false);
@@ -161,6 +178,14 @@ export const useTextPdfExport = () => {
               pdf.setFontSize(fontSize);
               
               const lines = pdf.splitTextToSize(text, maxWidth);
+              checkPageBreak(lines.length * fontSize * 0.35 * 1.3);
+              const headingId = element.getAttribute('id');
+              if (headingId) {
+                headingPositions.set(headingId, {
+                  page: pdf.getNumberOfPages(),
+                  top: yPosition
+                });
+              }
               renderLines(lines, margin, 1.3, fontSize);
               yPosition += 4; // Reduced spacing after heading
             }
@@ -243,6 +268,19 @@ export const useTextPdfExport = () => {
                   const bulletWidth = pdf.getTextWidth(bullet);
                   const lines = pdf.splitTextToSize(text, Math.max(10, availableWidth - bulletWidth));
                   if (lines.length > 0) {
+                    const anchor = li.querySelector('a');
+                    const href = anchor?.getAttribute('href');
+                    if (href?.startsWith('#')) {
+                      checkPageBreak(lineHeight * 1.2);
+                      pendingPdfLinks.push({
+                        page: pdf.getNumberOfPages(),
+                        x: listX + bulletWidth,
+                        y: yPosition - lineHeight * 1.2,
+                        width: Math.min(pdf.getTextWidth(text), availableWidth - bulletWidth),
+                        height: lineHeight * 1.2,
+                        targetId: href.slice(1)
+                      });
+                    }
                     renderLines([bullet + lines[0]], listX, 1.2, settings.fontSize.body);
                     renderLines(lines.slice(1), listX + bulletWidth, 1.2, settings.fontSize.body);
                   }
@@ -402,6 +440,17 @@ export const useTextPdfExport = () => {
       // Start processing from the root
       for (const child of Array.from(tempDiv.childNodes)) {
         processNode(child);
+      }
+
+      for (const link of pendingPdfLinks) {
+        const target = headingPositions.get(link.targetId);
+        if (!target) continue;
+
+        pdf.setPage(link.page);
+        pdf.link(link.x, link.y, link.width, link.height, {
+          pageNumber: target.page,
+          top: target.top
+        });
       }
 
       // Add Page Numbers

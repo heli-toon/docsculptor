@@ -57,5 +57,5 @@ export const sanitizeHtml = (html: string): string =>
     ALLOWED_ATTR,
     ALLOWED_TAGS,
     ALLOW_DATA_ATTR: false,
-    ALLOWED_URI_REGEXP: /^(?:(?:https?|mailto):|data:image\/(?:gif|jpe?g|png|webp);)/i,
+    ALLOWED_URI_REGEXP: /^(?:#|(?:(?:https?|mailto):|data:image\/(?:gif|jpe?g|png|webp);))/i,
   });

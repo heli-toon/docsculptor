@@ -159,12 +159,80 @@ export const usePdfExport = () => {
         format: settings.pageFormat.toLowerCase(),
         orientation: settings.orientation
       },
-      pagebreak: { mode: ['avoid-all'] }
+      pagebreak: { mode: ['avoid-all'] },
+      enableLinks: false
     };
 
     setExportProgress(60);
-    
-    const worker = html2pdf().from(element).set(options).toPdf().get('pdf').then((pdf) => {
+
+    type PdfLink = {
+      left: number;
+      top: number;
+      width: number;
+      height: number;
+      page: number;
+      target?: {
+        page: number;
+        top: number;
+      };
+      url?: string;
+    };
+
+    const pdfLinks: PdfLink[] = [];
+    const pageWidth = settings.pageFormat === 'A4' ? 210 :
+      settings.pageFormat === 'Letter' ? 215.9 : 215.9;
+    const pageHeight = settings.pageFormat === 'A4' ? 297 :
+      settings.pageFormat === 'Letter' ? 279.4 : 355.6;
+    const innerWidth = pageWidth - settings.margins.left - settings.margins.right;
+    const innerHeight = pageHeight - settings.margins.top - settings.margins.bottom;
+
+    const worker = html2pdf().from(element).set(options).toContainer()
+      .get('container')
+      .then((container: HTMLElement) => {
+        const containerRect = container.getBoundingClientRect();
+        const scale = innerWidth / containerRect.width;
+        const getPosition = (rect: DOMRect) => {
+          const top = (rect.top - containerRect.top) * scale;
+          return {
+            left: settings.margins.left + (rect.left - containerRect.left) * scale,
+            top: settings.margins.top + top % innerHeight,
+            page: Math.floor(top / innerHeight) + 1,
+            width: rect.width * scale,
+            height: rect.height * scale
+          };
+        };
+
+        container.querySelectorAll('a').forEach((anchor) => {
+          const href = anchor.getAttribute('href');
+          if (!href) return;
+
+          const targetId = href.startsWith('#') ? href.slice(1) : null;
+          const target = targetId ? container.querySelector(`#${CSS.escape(targetId)}`) : null;
+          const targetPosition = target
+            ? getPosition(target.getBoundingClientRect())
+            : undefined;
+
+          anchor.getClientRects();
+          Array.from(anchor.getClientRects()).forEach((rect) => {
+            const position = getPosition(rect);
+            pdfLinks.push({
+              ...position,
+              target: targetPosition
+                ? { page: targetPosition.page, top: targetPosition.top }
+                : undefined,
+              url: targetPosition ? undefined : (anchor as HTMLAnchorElement).href
+            });
+          });
+        });
+      })
+      .toPdf().get('pdf').then((pdf) => {
+      pdfLinks.forEach((link) => {
+        pdf.setPage(link.page);
+        pdf.link(link.left, link.top, link.width, link.height, link.target
+          ? { pageNumber: link.target.page, top: link.target.top }
+          : { url: link.url });
+      });
+
       if (settings.includePageNumbers) {
         const totalPages = pdf.internal.getNumberOfPages();
         for (let i = 1; i <= totalPages; i++) {

@@ -8,6 +8,13 @@ declare module 'html2pdf.js' {
       getNumberOfPages(): number;
     };
     getNumberOfPages(): number;
+    link(
+      x: number,
+      y: number,
+      width: number,
+      height: number,
+      options: PdfLinkOptions
+    ): void;
     setPage(page: number): Html2PdfDocument;
     setFontSize(size: number): Html2PdfDocument;
     setTextColor(
@@ -20,6 +27,7 @@ declare module 'html2pdf.js' {
   }
 
   interface Html2PdfOptions {
+    enableLinks?: boolean;
     margin?: number | number[];
     filename?: string;
     image?: {
@@ -37,6 +45,12 @@ declare module 'html2pdf.js' {
     };
   }
 
+  interface PdfLinkOptions {
+    url?: string;
+    pageNumber?: number;
+    top?: number;
+  }
+
   interface Html2PdfWorker {
     from(element: HTMLElement | string): Html2PdfWorker;
     set(options: Html2PdfOptions): Html2PdfWorker;
@@ -45,7 +59,9 @@ declare module 'html2pdf.js' {
     toCanvas(): Html2PdfWorker;
     toContainer(): Html2PdfWorker;
     get(name: 'pdf'): Html2PdfWorker;
+    get(name: 'container'): Html2PdfWorker;
     then(callback: (pdf: Html2PdfDocument) => void): Html2PdfWorker;
+    then(callback: (container: HTMLElement) => void): Html2PdfWorker;
     save(filename?: string): Promise<void>;
     output(type: string, options?: Record<string, unknown>): unknown;
   }
